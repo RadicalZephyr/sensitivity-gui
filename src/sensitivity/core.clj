@@ -1,6 +1,15 @@
-(ns sensitivity.core)
+(ns sensitivity.core
+  (:use seesaw.core))
 
-(defn foo
-  "I don't do a whole lot."
-  [x]
-  (println x "Hello, World!"))
+(defn main-widget []
+  "Hello Seesaw")
+
+(defn -main
+  "Hello world, seesaw style!"
+  [& args]
+  (native!)
+  (invoke-later
+   (-> (frame :title "Synapse Administration")
+       (config! :content (main-widget))
+       pack!
+       show!)))
