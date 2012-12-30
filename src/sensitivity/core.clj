@@ -38,7 +38,7 @@
 (defn- get-offsets [datasets]
   (do-calculation plus datasets))
 
-(defn iterate-structure [structure func]
-  (map #(identity {:negative (func (:negative %))
-                   :positive (func (:positive %))})
+(defn iterate-structure [func structure]
+  (map #(identity {:neg (func (:neg %))
+                   :pos (func (:pos %))})
        structure))
