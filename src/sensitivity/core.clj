@@ -1,8 +1,7 @@
 (ns sensitivity.core
   (:use incanter.core
-        [sensitivity.io :only [read-data-from-file]])
-  (:require incanter.io
-            clojure.java.io))
+        [clojure.java.io :only [file]]
+        [sensitivity.io :only [read-data-from-file]]))
 
 (def structure [{:neg "Xnegative" :pos "Xpositive"}
                 {:neg "Ynegative" :pos "Ypositive"}
@@ -54,3 +53,24 @@
    (partial directory->dataset root-dir)
    dir-strc))
 
+(defn -main
+  "Takes a single argument, a folder that has the subfolders Xnegative,
+  Xpositive, Ynegative, Ypositive, Znegative, and Zpositive.  Each subfolder
+  should contain a series of Provel .pbmp files named sequentially (i.e. the
+  output of a scan).  Will print out the offsets and sensitivities of the
+  scanner."
+  [root-dir & args]
+  (let [root-file (file root-dir)]
+    (when (.exists root-file)
+      (let [root-path (str (.getCanonicalPath root-file) "/")
+            datasets (root-directory->datasets root-path
+                                               structure)
+            means    (iterate-structure dataset-mean
+                                        datasets)
+            offsets (get-offsets means)]
+        (prn "Offsets")
+        (prn (dataset-mean offsets))
+        (prn "Raw Offsets")
+        (prn offsets)
+        (prn "Sensitivities")
+        (prn (get-sensitivities means))))))
