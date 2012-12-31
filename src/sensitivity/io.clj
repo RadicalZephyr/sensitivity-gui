@@ -30,9 +30,9 @@
       getChannel))
 
 (defn channel->bb [channel]
-  (let [bb (.order (ByteBuffer/allocate BUFFER-SIZE)
-                   ByteOrder/LITTLE_ENDIAN)]
+  (let [bb (ByteBuffer/allocate BUFFER-SIZE)]
     (.read channel bb)
+    (.order bb ByteOrder/LITTLE_ENDIAN)
     (.flip bb)))
 
 (defn read-data-at-offset [channel offset]
