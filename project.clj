@@ -8,4 +8,5 @@
                  [incanter/incanter-charts "1.3.0"]
                  [incanter/incanter-io "1.3.0"]
                  [incanter/incanter-processing "1.3.0"]
+                 [gloss "0.2.1"]
                  [seesaw "1.4.2"]])

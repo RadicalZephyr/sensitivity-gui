@@ -1,7 +1,8 @@
 (ns sensitivity.core
   (:use seesaw.core
         incanter.core)
-  (:require incanter.io))
+  (:require incanter.io
+            clojure.java.io))
 
 (defn main-widget []
   "Hello Seesaw")
@@ -42,3 +43,14 @@
   (map #(identity {:neg (func (:neg %))
                    :pos (func (:pos %))})
        structure))
+
+(defn list-files [directory]
+  (let [f (clojure.java.io/file directory)
+        fs (file-seq f)]
+    (sort fs)))
+
+(defn do-dirs [dir-strc]
+  (iterate-structure
+   #(list-files (str "data/1.0/" %))
+   strc))
+
