@@ -1,7 +1,7 @@
 (ns sensitivity.io
   (:use [gloss.core :only [defcodec ordered-map repeated]]
         [gloss.io   :only [decode]])
-  (:import java.io.FileInputStream
+  (:import java.io.RandomAccessFile
            java.nio.ByteBuffer
            java.nio.ByteOrder))
 
@@ -26,19 +26,17 @@
                :padding (repeated :byte :prefix :none)))
 
 (defn open-channel [file]
-  (.. (FileInputStream. file)
-      getChannel))
+  (.getChannel (RandomAccessFile. file "r")))
 
-(defn channel->bb [channel]
-  (let [bb (ByteBuffer/allocate BUFFER-SIZE)]
-    (.read channel bb)
-    (.order bb ByteOrder/LITTLE_ENDIAN)
-    (.flip bb)))
+(defn channel->bb [channel offset]
+  (.order
+   (.map channel
+         java.nio.channels.FileChannel$MapMode/READ_ONLY offset BUFFER-SIZE)
+   ByteOrder/BIG_ENDIAN))
 
 (defn read-data-at-offset [channel offset]
   (dissoc (decode sensor-data
-                  (channel->bb
-                   (.position channel offset)))
+                  (channel->bb channel offset))
           :padding))
 
 (defn read-data-from-file [file]
