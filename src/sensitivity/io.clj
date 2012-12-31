@@ -11,27 +11,6 @@
 (def OFFSETS [0x1ff800
               0x1ffc00])
 
-(defn open-channel [file]
-  (.. (FileInputStream. file)
-      getChannel))
-
-(defn channel->bb [channel]
-  (let [bb (.order (ByteBuffer/allocate BUFFER-SIZE)
-                   ByteOrder/LITTLE_ENDIAN)]
-    (.read channel bb)
-    (.flip bb)))
-
-(defn read-data-at-offset [channel offset]
-  (-> channel
-      (.position offset)
-      channel->bb
-      (decode sensor-data)))
-
-(defn read-data-from-file [file]
-  (with-open [chn (open-channel file)]
-    (doseq [offset OFFSETS]
-      )))
-
 (defcodec sensor-data
   (ordered-map :magic-header :uint32
                :cap-idx :uint32
@@ -43,3 +22,25 @@
                                    :float32 :float32 :float32 ]
                                   :prefix :byte)
                :padding (repeated :byte :prefix :none)))
+
+(defn open-channel [file]
+  (.. (FileInputStream. file)
+      getChannel))
+
+(defn channel->bb [channel]
+  (let [bb (.order (ByteBuffer/allocate BUFFER-SIZE)
+                   ByteOrder/LITTLE_ENDIAN)]
+    (.read channel bb)
+    (.flip bb)))
+
+(defn read-data-at-offset [channel offset]
+  (decode sensor-data
+          (channel->bb
+           (.position channel offset))))
+
+(defn read-data-from-file [file]
+  (with-open [chn (open-channel file)]
+    (doall
+     (map (partial read-data-at-offset chn)
+          OFFSETS))))
+
