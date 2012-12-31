@@ -18,10 +18,19 @@
   (.order
    (.map channel
          java.nio.channels.FileChannel$MapMode/READ_ONLY offset BUFFER-SIZE)
-   ByteOrder/BIG_ENDIAN))
+   ByteOrder/LITTLE_ENDIAN))
 
-(defn read-data-at-offset [channel offset]
-  )
+(defn read-sensor-entry [byte-buffer]
+  (let [timestamp (.getInt byte-buffer)
+        accel (apply vector (repeatedly 3 #(.getFloat byte-buffer)))
+        gyro  (apply vector (repeatedly 3 #(.getFloat byte-buffer)))]
+    [timestamp accel gyro]))
+
+(defn read-data [byte-buffer]
+  (let [magic-header (.getInt byte-buffer)
+        hdrs (doall (repeatedly 4  #(.getInt byte-buffer)))
+        sensor-length (.get byte-buffer)]
+    (repeatedly sensor-length #(read-sensor-entry byte-buffer))))
 
 
 
