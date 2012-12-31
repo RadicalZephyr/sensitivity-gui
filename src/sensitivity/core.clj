@@ -17,20 +17,14 @@
 ;;        pack!
 ;;        show!)))
 
-
-(defn- load-file [fname]
-  (incanter.io/read-dataset fname :delim \space))
-
 (defn- mean-2d [col]
   (map /
        (reduce #(map + %1 %2) col)
        (repeat (count col))))
 
 (defn- dataset-mean [dataset]
-  (let [cols [:col4 :col5 :col6]]
-    (to-matrix
-     ($ :all cols
-        ($rollup mean-2d cols [] dataset)))))
+  (let [cols [:acc-x :acc-y :acc-z]]
+    ($rollup mean-2d cols [] dataset)))
 
 (defn- do-calculation [func datasets]
   (map #(func (:negative %)
