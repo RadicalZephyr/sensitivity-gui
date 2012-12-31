@@ -1,4 +1,6 @@
 (ns sensitivity.io
+  (:use [gloss.core :only [defcodec ordered-map repeated]]
+        [gloss.io   :only [decode]])
   (:import java.io.FileInputStream
            java.nio.ByteBuffer
            java.nio.ByteOrder))
