@@ -21,6 +21,12 @@
     (.read channel bb)
     (.flip bb)))
 
+(defn read-data-at-offset [channel offset]
+  (-> channel
+      (.position offset)
+      channel->bb
+      (decode sensor-data)))
+
 (defn read-data-from-file [file]
   (with-open [chn (open-channel file)]
     (doseq [offset OFFSETS]
