@@ -1,6 +1,6 @@
 (ns sensitivity.core
   (:use incanter.core
-        sensitivity.io)
+        [sensitivity.io :only [read-data-from-file]])
   (:require incanter.io
             clojure.java.io))
 
@@ -47,10 +47,10 @@
 (defn list-files [directory]
   (let [f (clojure.java.io/file directory)
         fs (file-seq f)]
-    (sort fs)))
+    (drop 1 (sort fs))))
 
-(defn do-dirs [dir-strc]
+(defn do-dirs [root-dir dir-strc]
   (iterate-structure
-   #(list-files (str "data/1.0/" %))
+   #(mapcat read-data-from-file (list-files (str root-dir %)))
    dir-strc))
 
