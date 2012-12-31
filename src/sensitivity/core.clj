@@ -21,16 +21,18 @@
   (count (to-list dataset)))
 
 (defn- do-calculation [func datasets]
-  (map #(func (:neg %)
-              (:pos %))
+  (map #(div (func (to-matrix (:neg %))
+                   (to-matrix (:pos %)))
+             2)
        datasets))
 
 (defn- get-offsets [mean-datasets]
-  (do-calculation (fn [neg pos]
-                    (div (plus (to-matrix neg)
-                               (to-matrix pos))
-                         2))
-                  mean-datasets))
+  (dataset [:acc-x :acc-y :acc-z]
+   (do-calculation plus mean-datasets)))
+
+(defn- get-sensitivities [mean-datasets]
+  (matrix
+   (do-calculation minus mean-datasets)))
 
 (defn iterate-structure [func structure]
   (map #(identity {:neg (func (:neg %))
