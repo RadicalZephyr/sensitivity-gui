@@ -5,4 +5,5 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [incanter/incanter-core "1.3.0"]
-                 [incanter/incanter-io "1.3.0"]])
+                 [incanter/incanter-io "1.3.0"]
+                 [seesaw "1.4.2"]])
