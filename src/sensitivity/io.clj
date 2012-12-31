@@ -12,10 +12,10 @@
               0x1ffc00])
 
 (defcodec sensor-data
-  (ordered-map :magic-header :uint32
-               :cap-idx :uint32
-               :image-idx :uint32
-               :img-chksum :uint32
+  (ordered-map :magic-header  :uint32
+               :cap-idx       :uint32
+               :image-idx     :uint32
+               :img-chksum    :uint32
                :img-timestamp :uint32
                :entries (repeated [:uint64
                                    :float32 :float32 :float32
