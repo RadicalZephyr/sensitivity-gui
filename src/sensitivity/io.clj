@@ -17,7 +17,7 @@
                :image-idx     :uint32
                :img-chksum    :uint32
                :img-timestamp :uint32
-               :entries (repeated [:uint64
+               :entries (repeated [:uint32
                                    :float32 :float32 :float32
                                    :float32 :float32 :float32 ]
                                   :prefix :byte)
