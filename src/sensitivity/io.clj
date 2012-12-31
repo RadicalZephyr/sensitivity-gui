@@ -34,9 +34,10 @@
     (.flip bb)))
 
 (defn read-data-at-offset [channel offset]
-  (decode sensor-data
-          (channel->bb
-           (.position channel offset))))
+  (dissoc (decode sensor-data
+                  (channel->bb
+                   (.position channel offset)))
+          :padding))
 
 (defn read-data-from-file [file]
   (with-open [chn (open-channel file)]
