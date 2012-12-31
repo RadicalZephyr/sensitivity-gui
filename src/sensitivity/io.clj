@@ -3,8 +3,13 @@
            java.nio.ByteBuffer
            java.nio.ByteOrder))
 
+
 (def BUFFER-SIZE 640)
+
 (def MAGIC-HEADER 0x711ad917)
+
+(def OFFSETS [0x1ff800
+              0x1ffc00])
 
 (defn open-channel [file]
   (.. (FileInputStream. file)
@@ -15,6 +20,11 @@
                    ByteOrder/LITTLE_ENDIAN)]
     (.read channel bb)
     (.flip bb)))
+
+(defn read-data-from-file [file]
+  (with-open [chn (open-channel file)]
+    (doseq [offset OFFSETS]
+      )))
 
 (defcodec sensor-data
   (ordered-map :magic-header :uint32
