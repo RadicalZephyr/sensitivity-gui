@@ -4,6 +4,10 @@
   (:require incanter.io
             clojure.java.io))
 
+(def structure [{:neg "Xnegative" :pos "Xpositive"}
+                {:neg "Ynegative" :pos "Ypositive"}
+                {:neg "Znegative" :pos "Zpositive"}])
+
 (defn- mean-2d [col]
   (map /
        (reduce #(map + %1 %2) col)
