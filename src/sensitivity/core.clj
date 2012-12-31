@@ -26,30 +26,30 @@
              2)
        datasets))
 
-(defn- get-offsets [mean-datasets]
+(defn get-offsets [mean-datasets]
   (dataset [:acc-x :acc-y :acc-z]
    (do-calculation plus mean-datasets)))
 
-(defn- get-sensitivities [mean-datasets]
+(defn get-sensitivities [mean-datasets]
   (matrix
    (do-calculation minus mean-datasets)))
 
-(defn iterate-structure [func structure]
+(defn- iterate-structure [func structure]
   (map #(identity {:neg (func (:neg %))
                    :pos (func (:pos %))})
        structure))
 
-(defn list-files [directory]
+(defn- list-files [directory]
   (let [f (clojure.java.io/file directory)
         fs (file-seq f)]
     (drop 1 (sort fs))))
 
-(defn directory->dataset [root-dir filename]
+(defn- directory->dataset [root-dir filename]
   (dataset [:timestamp :acc-x :acc-y :acc-z :gyro-x :gyro-y :gyro-z]
            (mapcat read-data-from-file
                    (list-files (str root-dir filename)))))
 
-(defn do-dirs [root-dir dir-strc]
+(defn root-directory->datasets [root-dir dir-strc]
   (iterate-structure
    (partial directory->dataset root-dir)
    dir-strc))
