@@ -1,21 +1,21 @@
 (ns sensitivity.core
-  (:use seesaw.core
-        incanter.core)
+  (:use incanter.core
+        sensitivity.io)
   (:require incanter.io
             clojure.java.io))
 
 (defn main-widget []
   "Hello Seesaw")
 
-(defn -main
-  "Hello world, seesaw style!"
-  [& args]
-  (native!)
-  (invoke-later
-   (-> (frame :title "Calculate Sensitivity")
-       (config! :content (main-widget))
-       pack!
-       show!)))
+;; (defn -main
+;;   "Hello world, seesaw style!"
+;;   [& args]
+;;   (native!)
+;;   (invoke-later
+;;    (-> (frame :title "Calculate Sensitivity")
+;;        (config! :content (main-widget))
+;;        pack!
+;;        show!)))
 
 
 (defn- load-file [fname]
@@ -52,5 +52,5 @@
 (defn do-dirs [dir-strc]
   (iterate-structure
    #(list-files (str "data/1.0/" %))
-   strc))
+   dir-strc))
 
