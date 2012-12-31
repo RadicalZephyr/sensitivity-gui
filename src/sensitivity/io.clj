@@ -30,14 +30,13 @@
   (let [magic-header (.getInt byte-buffer)
         hdrs (doall (repeatedly 4  #(.getInt byte-buffer)))
         sensor-length (.get byte-buffer)]
-    (repeatedly sensor-length #(read-sensor-entry byte-buffer))))
-
-
-
+    (when (= magic-header MAGIC-HEADER)
+      (repeatedly sensor-length #(read-sensor-entry byte-buffer)))))
 
 (defn read-data-from-file [file]
   (with-open [chn (open-channel file)]
-    (doall
-     (map (partial read-data-at-offset chn)
-          OFFSETS))))
+    (let [data (map #(read-data (channel->bb chn %))
+                    OFFSETS)]
+      (when (= (first data) (second data))
+        (first data)))))
 
