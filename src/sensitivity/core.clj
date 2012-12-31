@@ -4,19 +4,6 @@
   (:require incanter.io
             clojure.java.io))
 
-(defn main-widget []
-  "Hello Seesaw")
-
-;; (defn -main
-;;   "Hello world, seesaw style!"
-;;   [& args]
-;;   (native!)
-;;   (invoke-later
-;;    (-> (frame :title "Calculate Sensitivity")
-;;        (config! :content (main-widget))
-;;        pack!
-;;        show!)))
-
 (defn- mean-2d [col]
   (map /
        (reduce #(map + %1 %2) col)
