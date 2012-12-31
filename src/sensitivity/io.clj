@@ -21,9 +21,9 @@
 
 (defn- read-sensor-entry [byte-buffer]
   (let [timestamp (.getInt byte-buffer)
-        accel (apply vector (repeatedly 3 #(.getFloat byte-buffer)))
-        gyro  (apply vector (repeatedly 3 #(.getFloat byte-buffer)))]
-    [timestamp accel gyro]))
+        accel (repeatedly 3 #(.getFloat byte-buffer))
+        gyro  (repeatedly 3 #(.getFloat byte-buffer))]
+    (concat [timestamp] accel gyro)))
 
 (defn- read-data [byte-buffer]
   (let [magic-header (.getInt byte-buffer)
