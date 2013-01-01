@@ -6,14 +6,14 @@
        seesaw.core
        [seesaw.chooser :only [choose-file]]))
 
-(defn choose-absolute-dir-path []
-  (choose-file
-   :selection-mode :dirs-only
-   :success-fn (fn [fc file]
-                 (str (.getAbsolutePath file) "/"))))
+(defn choose-absolute-dir-path [root]
+  (choose-file root
+               :selection-mode :dirs-only
+               :success-fn (fn [fc file]
+                             (str (.getAbsolutePath file) "/"))))
 
 (defn bind-choose-file [root selector]
-  (let [dir (choose-absolute-dir-path)]
+  (let [dir (choose-absolute-dir-path root)]
     (invoke-later
      (config! (select root selector)
               :text dir))))
@@ -35,15 +35,15 @@
                 :north (dir-select)))
 
 (defn open-scan [event]
-  (let [dir (choose-absolute-dir-path)
-        root (to-root event)]
+  (let [root (to-root event)
+        dir (choose-absolute-dir-path root)]
     (invoke-later
      (config! (select root [:#main-display])
               :items [(scrollable
                        (text :editable? false
                              :multi-line? true
-                             (with-out-str
-                          (prn (directory->dataset dir)))))]))))
+                             :text (with-out-str
+                                     (prn (directory->dataset dir)))))]))))
 
 (defn save-datum [event]
   )
@@ -81,6 +81,8 @@
        'clojure.pprint
        'seesaw.dev)
   (native!))
+
+(def f)
 
 (defn display [content]
   (config! f :content content))
