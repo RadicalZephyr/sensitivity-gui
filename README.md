@@ -1,13 +1,17 @@
-# sensitivity
+# Sensitivity GUI
 
-A Clojure library designed to ... well, that part is up to you.
+A Clojure library/GUI to calculate accelerometer sensitivities given a
+set of scans.
 
 ## Usage
+For the GUI version run:
+    lein run -m sensitivity.gui
 
-FIXME
+For command-line:
+    lein run -m sensitivity.core
 
 ## License
 
-Copyright © 2012 FIXME
+Copyright © 2012 Geoff Shannon
 
 Distributed under the Eclipse Public License, the same as Clojure.
