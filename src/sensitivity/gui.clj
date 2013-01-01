@@ -12,29 +12,19 @@
                :success-fn (fn [fc file]
                              (str (.getAbsolutePath file) "/"))))
 
-(defn bind-choose-file [root selector]
-  (let [dir (choose-absolute-dir-path root)]
-    (invoke-later
-     (config! (select root selector)
-              :text dir))))
-
 (defn dir-select []
   (horizontal-panel :items
                     [(text :text "Select a file"
                            :editable? false
                            :id :root-dir)
-                     (action :name "..."
-                             :handler (fn [e]
-                                        (bind-choose-file
-                                         (to-root e) [:#root-dir])))]))
+                     ]))
 
 (defn main-widget []
   (border-panel :id :main-bp
                 :hgap 10 :vgap 10
                 :center (vertical-panel  :id :main-display
                                          :maximum-size [640 :by 480]
-                                         :items [])
-                :north (dir-select)))
+                                         :items [])))
 
 (defn reset-main [root content]
     (invoke-later
@@ -52,6 +42,13 @@
                                 (prn
                                  (directory->dataset dir)))))])))
 
+
+(defn open-sensitivity [event]
+  (let [root (to-root event)
+        dir (choose-absolute-dir-path root)]
+
+    ))
+
 (defn save-datum [event]
   )
 
@@ -59,14 +56,18 @@
   (let [open-scan-action (action :name "Open scan ..."
                                  :tip "Open a single scan folder"
                                  :handler open-scan)
+        sensitivity-action (action :name "Open a sensitivity scan ..."
+                                   :tip "Open a folder containing the six folders of a sensitivity calibration scan"
+                                   :handler open-sensitivity
         save-datum-action (action :name "Save to datum ..."
-                                  :tip "Save current calibration to datum file"
+                                  :tip "(NOT IMPLEMENTED) Save current calibration to datum file"
                                   :handler save-datum)
         exit-action (action :name "Exit"
                             :handler (fn [e]
                                        (.dispose (to-frame e))))]
     (menubar :items
              [(menu :text "File" :items [open-scan-action
+                                         sensitivity-action
                                          save-datum-action
                                          exit-action])])))
 
