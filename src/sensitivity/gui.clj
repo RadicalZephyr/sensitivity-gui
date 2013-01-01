@@ -1,5 +1,6 @@
 (ns sensitivity.gui
-  (use [sensitivity.core :only [root-directory->datasets
+  (use [sensitivity.core :only [directory->dataset
+                                root-directory->datasets
                                 get-offsets
                                 get-sensitivities]]
        seesaw.core
@@ -29,21 +30,34 @@
 
 (defn main-widget []
   (border-panel :hgap 10 :vgap 10
-                :center "Filler Text!"
+                :center (flow-panel  :id :main-display
+                                     :items ["Filler text"])
                 :north (dir-select)))
 
 (defn open-scan [event]
-  (let [dir (choose-absolute-dir-path)]
-    ;; TODO: make this pop-up a new window or something
-    ))
+  (let [dir (choose-absolute-dir-path)
+        root (to-root event)]
+    (invoke-later
+     (config! (select root [:#main-display])
+              :items [(scrollable
+                       (text :editable? false
+                             :multi-line? true
+                             (with-out-str
+                          (prn (directory->dataset dir)))))]))))
+
+(defn save-datum [event]
+  )
 
 (defn setup-menu []
   (let [open-scan-action (action :name "Open scan ..."
-                                 :tip "Open a single scan folder")
+                                 :tip "Open a single scan folder"
+                                 :handler open-scan)
         save-datum-action (action :name "Save to datum ..."
-                                  :tip "Save current calibration to datum file")
+                                  :tip "Save current calibration to datum file"
+                                  :handler save-datum)
         exit-action (action :name "Exit"
-                            :handler (fn [e] (.dispose (to-frame e))))]
+                            :handler (fn [e]
+                                       (.dispose (to-frame e))))]
     (menubar :items
              [(menu :text "File" :items [open-scan-action
                                          save-datum-action
