@@ -44,8 +44,12 @@
 
 (defn open-sensitivity [root]
   (let [dir (choose-absolute-dir-path root)]
-
-    ))
+    (reset-main root
+                [(scrollable
+                  (text :editable? false
+                        :multi-line? true
+                        :text (with-out-str
+                                (sensitivity.core/-main dir))))])))
 
 (defn save-datum [root]
   )
@@ -82,7 +86,6 @@
               :menu (setup-menu)
               :content (main-widget)
               :size [400 :by 240])
-       (config! )
        pack!
        show!)))
 
