@@ -5,12 +5,14 @@
        seesaw.core
        [seesaw.chooser :only [choose-file]]))
 
-(defn bind-choose-file [selector]
-  (choose-file
-   :selection-mode :dirs-only
-   :success-fn (fn [fc file]
-                 (config! (select selector)
-                          :text (str (.getAbsolutePath file) "/")))))
+(defn bind-choose-file [root selector]
+  (let [dir (choose-file
+          :selection-mode :dirs-only
+          :success-fn (fn [fc file]
+                        (str (.getAbsolutePath file) "/")))]
+    (invoke-later
+     (config! (select root selector)
+              :text dir))))
 
 (defn dir-select []
   (horizontal-panel :items
@@ -18,7 +20,9 @@
                            :editable? false
                            :id :root-dir)
                      (action :name "..."
-                             :handler #(bind-choose-file [:root-dir]))]))
+                             :handler (fn [e]
+                                        (bind-choose-file
+                                         (to-root e) [:#root-dir])))]))
 
 (defn main-widget []
   "Hello Seesaw")
@@ -34,3 +38,11 @@
        (config! )
        pack!
        show!)))
+
+(defn start-dev []
+  (use 'clojure.repl
+       'clojure.pprint
+       'seesaw.dev))
+
+(defn display [content]
+  (config! f :content content))
