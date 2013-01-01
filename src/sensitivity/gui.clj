@@ -83,10 +83,10 @@
   (native!)
   (invoke-later
    (-> (frame :title "Provel Sensitivity Calibration"
-              :menu (setup-menu)
+              :on-close :exit
+              :menubar (setup-menu)
               :content (main-widget)
-              :size [400 :by 240])
-       pack!
+              :size [640 :by 480])
        show!)))
 
 (defn start-dev []
