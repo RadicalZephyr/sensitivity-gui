@@ -5,11 +5,14 @@
        seesaw.core
        [seesaw.chooser :only [choose-file]]))
 
+(defn choose-absolute-dir-path []
+  (choose-file
+   :selection-mode :dirs-only
+   :success-fn (fn [fc file]
+                 (str (.getAbsolutePath file) "/"))))
+
 (defn bind-choose-file [root selector]
-  (let [dir (choose-file
-          :selection-mode :dirs-only
-          :success-fn (fn [fc file]
-                        (str (.getAbsolutePath file) "/")))]
+  (let [dir (choose-absolute-dir-path)]
     (invoke-later
      (config! (select root selector)
               :text dir))))
@@ -29,9 +32,14 @@
                 :center "Filler Text!"
                 :north (dir-select)))
 
+(defn open-scan [event]
+  (let [dir (choose-absolute-dir-path)]
+    ;; TODO: make this pop-up a new window or something
+    ))
+
 (defn setup-menu []
   (let [open-scan-action (action :name "Open scan ..."
-                                 :tip "Open a scan folder")
+                                 :tip "Open a single scan folder")
         save-datum-action (action :name "Save to datum ..."
                                   :tip "Save current calibration to datum file")
         exit-action (action :name "Exit"
