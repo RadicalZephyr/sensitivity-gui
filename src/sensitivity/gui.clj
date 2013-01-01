@@ -29,21 +29,28 @@
                                          (to-root e) [:#root-dir])))]))
 
 (defn main-widget []
-  (border-panel :hgap 10 :vgap 10
-                :center (flow-panel  :id :main-display
-                                     :items ["Filler text"])
+  (border-panel :id :main-bp
+                :hgap 10 :vgap 10
+                :center (vertical-panel  :id :main-display
+                                         :maximum-size [640 :by 480]
+                                         :items [])
                 :north (dir-select)))
+
+(defn reset-main [root content]
+    (invoke-later
+     (config! (select root [:#main-display])
+              :items content)))
 
 (defn open-scan [event]
   (let [root (to-root event)
         dir (choose-absolute-dir-path root)]
-    (invoke-later
-     (config! (select root [:#main-display])
-              :items [(scrollable
-                       (text :editable? false
-                             :multi-line? true
-                             :text (with-out-str
-                                     (prn (directory->dataset dir)))))]))))
+    (reset-main root
+                [(scrollable
+                  (text :editable? false
+                        :multi-line? true
+                        :text (with-out-str
+                                (prn
+                                 (directory->dataset dir)))))])))
 
 (defn save-datum [event]
   )
