@@ -27,13 +27,12 @@
                                          :items [])))
 
 (defn reset-main [root content]
-    (invoke-later
-     (config! (select root [:#main-display])
-              :items content)))
+  (invoke-later
+   (config! (select root [:#main-display])
+            :items content)))
 
-(defn open-scan [event]
-  (let [root (to-root event)
-        dir (choose-absolute-dir-path root)]
+(defn open-scan [root]
+  (let [dir (choose-absolute-dir-path root)]
     (reset-main root
                 [(scrollable
                   (text :editable? false
@@ -43,25 +42,28 @@
                                  (directory->dataset dir)))))])))
 
 
-(defn open-sensitivity [event]
-  (let [root (to-root event)
-        dir (choose-absolute-dir-path root)]
+(defn open-sensitivity [root]
+  (let [dir (choose-absolute-dir-path root)]
 
     ))
 
-(defn save-datum [event]
+(defn save-datum [root]
   )
+
+(defn call-with-to-root [fun]
+  (fn [e]
+    (fun (to-root e))))
 
 (defn setup-menu []
   (let [open-scan-action (action :name "Open scan ..."
                                  :tip "Open a single scan folder"
-                                 :handler open-scan)
+                                 :handler (call-with-to-root open-scan))
         sensitivity-action (action :name "Open a sensitivity scan ..."
                                    :tip "Open a folder containing the six folders of a sensitivity calibration scan"
-                                   :handler open-sensitivity
+                                   :handler (call-with-to-root open-sensitivity))
         save-datum-action (action :name "Save to datum ..."
                                   :tip "(NOT IMPLEMENTED) Save current calibration to datum file"
-                                  :handler save-datum)
+                                  :handler (call-with-to-root save-datum))
         exit-action (action :name "Exit"
                             :handler (fn [e]
                                        (.dispose (to-frame e))))]
