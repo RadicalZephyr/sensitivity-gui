@@ -43,10 +43,13 @@
         fs (file-seq f)]
     (drop 1 (sort fs))))
 
-(defn- directory->dataset [root-dir filename]
-  (dataset [:timestamp :acc-x :acc-y :acc-z :gyro-x :gyro-y :gyro-z]
-           (mapcat read-data-from-file
-                   (list-files (str root-dir filename)))))
+(defn directory->dataset
+  ([root-dir filename]
+     (directory->dataset (str root-dir filename)))
+  ([directory]
+     (dataset [:timestamp :acc-x :acc-y :acc-z :gyro-x :gyro-y :gyro-z]
+              (mapcat read-data-from-file
+                      (list-files directory)))))
 
 (defn root-directory->datasets [root-dir dir-strc]
   (iterate-structure
