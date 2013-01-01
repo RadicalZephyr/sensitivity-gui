@@ -4,7 +4,8 @@
                                 get-offsets
                                 get-sensitivities]]
        seesaw.core
-       [seesaw.chooser :only [choose-file]]))
+       [seesaw.chooser :only [choose-file]])
+  (:gen-class))
 
 (defn choose-absolute-dir-path [root]
   (choose-file root
