@@ -5,7 +5,9 @@
 
 (def BUFFER-SIZE 1024)
 
-(def MAGIC-HEADER 0x711ad917)
+(def FW-MAGIC-HEADER 0x711ad917)
+
+(def CALIBRATION-MAGIC-HEADER 0xAC0FF5E7)
 
 (def OFFSETS [0x1ff800
               0x1ffc00])
@@ -29,7 +31,7 @@
   (let [magic-header (.getInt byte-buffer)
         hdrs (doall (repeatedly 4  #(.getInt byte-buffer)))
         sensor-length (.get byte-buffer)]
-    (when (= magic-header MAGIC-HEADER)
+    (when (= magic-header FW-MAGIC-HEADER)
       (repeatedly sensor-length #(read-sensor-entry byte-buffer)))))
 
 (defn read-data-from-file [file]
