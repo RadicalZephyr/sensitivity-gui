@@ -1,0 +1,67 @@
+<!-- Bold elements are required -->
+<launch4jConfig>
+  <headerType>gui</headerType>
+  <outfile>Accel Calibration.exe</outfile>
+  <jar>../target/sensitivity-0.1.0-SNAPSHOT-standalone.jar</jar>
+  <dontWrapJar>false</dontWrapJar>
+  <errTitle>Accel Calibration</errTitle>
+  <downloadUrl>http://java.com/download</downloadUrl>
+  <supportUrl>url</supportUrl>
+  <priority>normal|idle|high</priority>
+  <customProcName>true</customProcName>
+  <stayAlive>false</stayAlive>
+  <icon></icon>
+  <obj>header object file</obj>
+  ...
+  <lib>w32api lib</lib>
+  ...
+  <var>var=text</var>
+  ...
+  <classPath>
+    <mainClass>main class</mainClass>
+    <cp>classpath</cp>
+    ...
+  </classPath>
+  <singleInstance>
+    <mutexName>text</mutexName>
+    <windowTitle>text</windowTitle>
+  </singleInstance>
+  <jre>
+    <!-- Specify one of the following or both -->
+    <path>bundled JRE path</path>
+    <minVersion>x.x.x[_xx]</minVersion>
+    <maxVersion>x.x.x[_xx]</maxVersion>
+    <jdkPreference>jreOnly|preferJre|preferJdk|jdkOnly</jdkPreference>
+    <!-- Heap sizes in MB and % of free memory -->
+    <initialHeapSize>MB</initialHeapSize>
+    <initialHeapPercent>%</initialHeapPercent>
+    <maxHeapSize>MB</maxHeapSize>
+    <maxHeapPercent>%</maxHeapPercent>
+    <opt>text</opt>
+    ...
+  </jre>
+  <splash>
+    <file>file</file>
+    <waitForWindow>true|false</waitForWindow>
+    <timeout>seconds [60]</timeout>
+    <timeoutErr>true|false</timeoutErr>
+  </splash>
+  <versionInfo>
+    <fileVersion>x.x.x.x</fileVersion>
+    <txtFileVersion>text</txtFileVersion>
+    <fileDescription>text</fileDescription>
+    <copyright>text</copyright>
+    <productVersion>x.x.x.x</productVersion>
+    <txtProductVersion>text</txtProductVersion>
+    <productName>text</productName>
+    <companyName>text</companyName>
+    <internalName>filename</internalName>
+    <originalFilename>filename.exe</originalFilename>
+  </versionInfo>
+  <messages>
+    <startupErr>text</startupErr>
+    <bundledJreErr>text</bundledJreErr>
+    <jreVersionErr>text</jreVersionErr>
+    <launcherErr>text</launcherErr>
+  </messages>
+</launch4jConfig>
