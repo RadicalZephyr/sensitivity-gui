@@ -2,7 +2,7 @@
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
   <jar>../target/sensitivity-0.1.0-SNAPSHOT-standalone.jar</jar>
-  <outfile>../target/Accel Calibration.exe</outfile>
+  <outfile>../target/Accel Calibration-new.exe</outfile>
   <errTitle>Accel Calibration</errTitle>
   <cmdLine></cmdLine>
   <chdir></chdir>
