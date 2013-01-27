@@ -1,24 +1,22 @@
 (ns sensitivity.acceptance
-  (:use [clojure.string :only [join]]
-        [clojure.java.shell :only [sh]]
-        [sensitivity.core :only [root-directory->datasets
+  (:use [sensitivity.core :only [offset->string
+                                 sensitivity->string
+                                 validate-root-exists
+                                 root-directory->datasets
                                  get-means
                                  get-offsets
-                                 get-sensitivities
-                                 validate-root-exists]]))
-
-(defn- offset->string [offsets])
-
-(defn- sensitivity->string [row sensitivities])
+                                 get-sensitivities]]
+        [clojure.string :only [join]]
+        [clojure.java.shell :only [sh]]))
 
 (defn write-out-config [root-path offsets sensitivities]
   (spit (str root-path "acceptance.cfg")
         (str
          (join "\n"
-               ["[offset] = "        (offset->string offsets)
-                "[sensitivity_x] = " (sensitivity->string 0 sensitivities)
-                "[sensitivity_y] = " (sensitivity->string 1 sensitivities)
-                "[sensitivity_z] = " (sensitivity->string 2 sensitivities)]))))
+               [(str "[offset] = "        (offset->string offsets))
+                (str "[sensitivity_x] = " (sensitivity->string 0 sensitivities))
+                (str "[sensitivity_y] = " (sensitivity->string 1 sensitivities))
+                (str "[sensitivity_z] = " (sensitivity->string 2 sensitivities))]))))
 
 (defn -main
   "Run the acceptance test.  Takes a single argument of a folder.

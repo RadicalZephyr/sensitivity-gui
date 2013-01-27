@@ -1,5 +1,6 @@
 (ns sensitivity.core
   (:use incanter.core
+        [clojure.string :only [join]]
         [clojure.java.io :only [file]]
         [sensitivity.io :only [read-data-from-file]]))
 
@@ -69,6 +70,12 @@
         (prn "Error: " root-file " does not exist."))
       (System/exit 1))
     (str (.getCanonicalPath root-file) "/")))
+
+(defn offset->string [offsets]
+  (join " " (sel (dataset-mean offsets) :rows 0)))
+
+(defn sensitivity->string [row sensitivities]
+  (join " " (sel sensitivities :rows row)))
 
 (defn -main
   "Takes a single argument, a folder that has the subfolders Xnegative,
