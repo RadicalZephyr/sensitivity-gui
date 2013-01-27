@@ -37,7 +37,7 @@
 
 (defn get-offsets [mean-datasets]
   (dataset [:acc-x :acc-y :acc-z]
-   (do-calculation plus mean-datasets)))
+           (do-calculation plus mean-datasets)))
 
 (defn get-sensitivities [mean-datasets]
   (matrix
@@ -67,16 +67,20 @@
   scanner."
   [root-dir & args]
   (let [root-file (file root-dir)]
-    (when (.exists root-file)
-      (let [root-path (str (.getCanonicalPath root-file) "/")
-            datasets (root-directory->datasets root-path
-                                               structure)
-            means    (iterate-structure dataset-mean
-                                        datasets)
-            offsets (get-offsets means)]
-        (prn "Offsets")
-        (prn (dataset-mean offsets))
-        (prn "Raw Offsets")
-        (prn offsets)
-        (prn "Sensitivities")
-        (prn (get-sensitivities means))))))
+    (when (not (.exists root-dir))
+      (binding [*out* *err*]
+        (prn "Error: " root-dir " does not exist."))
+      (System/exit 1))
+
+    (let [root-path (str (.getCanonicalPath root-file) "/")
+          datasets (root-directory->datasets root-path
+                                             structure)
+          means    (iterate-structure dataset-mean
+                                      datasets)
+          offsets (get-offsets means)]
+      (prn "Offsets")
+      (prn (dataset-mean offsets))
+      (prn "Raw Offsets")
+      (prn offsets)
+      (prn "Sensitivities")
+      (prn (get-sensitivities means)))))
