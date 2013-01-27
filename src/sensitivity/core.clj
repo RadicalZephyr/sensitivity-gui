@@ -31,25 +31,25 @@
                    :pos (func (:pos %))})
        structure))
 
-(defn get-offsets [mean-datasets]
+(defn- get-offsets [mean-datasets]
   (dataset [:acc-x :acc-y :acc-z]
            (do-calculation plus mean-datasets)))
 
-(defn get-sensitivities [mean-datasets]
+(defn- get-sensitivities [mean-datasets]
   (matrix
    (do-calculation minus mean-datasets)))
 
-(defn get-means [datasets]
+(defn- get-means [datasets]
   (iterate-structure dataset-mean datasets))
 
-(defn directory->dataset
+(defn- directory->dataset
   ([root-dir filename]
      (directory->dataset (str root-dir filename)))
   ([directory]
      (dataset [:timestamp :acc-x :acc-y :acc-z :gyro-x :gyro-y :gyro-z]
               (read-data-from-directory directory))))
 
-(defn root-directory->datasets
+(defn- root-directory->datasets
   ([root-path]
      (root-directory->datasets root-path structure))
   ([root-path dir-strc]
@@ -71,6 +71,14 @@
 (defn sensitivity->string [row sensitivities]
   (join " " (sel sensitivities :rows row)))
 
+(defn calculate [root-dir]
+  (let [root-path (validate-root-exists root-dir)
+        datasets (root-directory->datasets root-path)
+        means    (iterate-structure dataset-mean
+                                    datasets)]
+    {:offsets (get-offsets means)
+     :sensitivities (get-sensitivities means)}))
+
 (defn -main
   "Takes a single argument, a folder that has the subfolders Xnegative,
   Xpositive, Ynegative, Ypositive, Znegative, and Zpositive.  Each subfolder
@@ -78,15 +86,11 @@
   output of a scan).  Will print out the offsets and sensitivities of the
   scanner."
   [root-dir & args]
-  (let [root-path (validate-root-exists root-dir)
-        datasets (root-directory->datasets root-path
-                                           structure)
-        means    (iterate-structure dataset-mean
-                                    datasets)
-        offsets (get-offsets means)]
+
+  (let [{:keys [offsets sensitivities]} (calculate root-dir)]
     (prn "Offsets")
     (prn (dataset-mean offsets))
     (prn "Raw Offsets")
     (prn offsets)
     (prn "Sensitivities")
-    (prn (get-sensitivities means))))
+    (prn sensitivities)))

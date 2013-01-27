@@ -1,11 +1,8 @@
 (ns sensitivity.gui
-  (use [sensitivity.core :only [directory->dataset
-                                root-directory->datasets
-                                get-offsets
-                                get-sensitivities]]
+  (use [sensitivity.io :only [read-data-from-directory]]
+       [sensitivity.core :only [calculate]]
        seesaw.core
-       [seesaw.chooser :only [choose-file]])
-  (:gen-class))
+       [seesaw.chooser :only [choose-file]]))
 
 (defn choose-absolute-dir-path [root]
   (choose-file root
@@ -40,7 +37,7 @@
                         :multi-line? true
                         :text (with-out-str
                                 (prn
-                                 (directory->dataset dir)))))])))
+                                 (read-data-from-directory dir)))))])))
 
 
 (defn open-sensitivity [root]

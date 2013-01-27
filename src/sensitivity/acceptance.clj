@@ -2,10 +2,7 @@
   (:use [sensitivity.core :only [offset->string
                                  sensitivity->string
                                  validate-root-exists
-                                 root-directory->datasets
-                                 get-means
-                                 get-offsets
-                                 get-sensitivities]]
+                                 calculate]]
         [clojure.string :only [join]]
         [clojure.java.shell :only [sh]]))
 
@@ -32,9 +29,6 @@
   The file acceptance.cfg will be re-created every time this runs."
   [root-dir]
   (let [root-path     (validate-root-exists root-dir)
-        datasets      (root-directory->datasets root-path)
-        means         (get-means datasets)
-        offsets       (get-offsets means)
-        sensitivities (get-sensitivities means)]
+        {:keys [offsets sensitivities]} (calculate root-dir)]
     (write-out-config root-path offsets sensitivities)
     ))
