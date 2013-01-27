@@ -1,8 +1,8 @@
 (ns sensitivity.core
   (:use incanter.core
-        [clojure.string :only [join]]
+        [clojure.string  :only [join]]
         [clojure.java.io :only [file]]
-        [sensitivity.io :only [read-data-from-file]]))
+        [sensitivity.io  :only [read-data-from-directory]]))
 
 (def structure [{:neg "Xnegative" :pos "Xpositive"}
                 {:neg "Ynegative" :pos "Ypositive"}
@@ -19,11 +19,6 @@
 
 (defn- num-rows [dataset]
   (count (to-list dataset)))
-
-(defn- list-files [directory]
-  (let [f (clojure.java.io/file directory)
-        fs (file-seq f)]
-    (drop 1 (sort fs))))
 
 (defn- do-calculation [func datasets]
   (map #(div (func (to-matrix (:neg %))
@@ -52,8 +47,7 @@
      (directory->dataset (str root-dir filename)))
   ([directory]
      (dataset [:timestamp :acc-x :acc-y :acc-z :gyro-x :gyro-y :gyro-z]
-              (mapcat read-data-from-file
-                      (list-files directory)))))
+              (read-data-from-directory directory))))
 
 (defn root-directory->datasets
   ([root-path]

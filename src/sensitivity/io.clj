@@ -34,6 +34,11 @@
     (when (= magic-header FW-MAGIC-HEADER)
       (repeatedly sensor-length #(read-sensor-entry byte-buffer)))))
 
+(defn- list-files [directory]
+  (let [f (clojure.java.io/file directory)
+        fs (file-seq f)]
+    (drop 1 (sort fs))))
+
 (defn read-data-from-file [file]
   (with-open [chn (open-channel file)]
     (let [data (map #(read-data (channel->bb chn %))
@@ -41,3 +46,6 @@
       (when (= (first data) (second data))
         (first data)))))
 
+(defn read-data-from-directory [directory]
+  (mapcat read-data-from-file
+          (list-files directory)))
