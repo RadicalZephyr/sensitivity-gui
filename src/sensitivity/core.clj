@@ -19,11 +19,21 @@
 (defn- num-rows [dataset]
   (count (to-list dataset)))
 
+(defn- list-files [directory]
+  (let [f (clojure.java.io/file directory)
+        fs (file-seq f)]
+    (drop 1 (sort fs))))
+
 (defn- do-calculation [func datasets]
   (map #(div (func (to-matrix (:neg %))
                    (to-matrix (:pos %)))
              2)
        datasets))
+
+(defn- iterate-structure [func structure]
+  (map #(identity {:neg (func (:neg %))
+                   :pos (func (:pos %))})
+       structure))
 
 (defn get-offsets [mean-datasets]
   (dataset [:acc-x :acc-y :acc-z]
@@ -33,15 +43,8 @@
   (matrix
    (do-calculation minus mean-datasets)))
 
-(defn- iterate-structure [func structure]
-  (map #(identity {:neg (func (:neg %))
-                   :pos (func (:pos %))})
-       structure))
-
-(defn- list-files [directory]
-  (let [f (clojure.java.io/file directory)
-        fs (file-seq f)]
-    (drop 1 (sort fs))))
+(defn get-means [datasets]
+  (iterate-structure dataset-mean datasets))
 
 (defn directory->dataset
   ([root-dir filename]
