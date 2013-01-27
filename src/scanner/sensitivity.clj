@@ -1,8 +1,8 @@
-(ns sensitivity.core
+(ns scanner.sensitivity
   (:use incanter.core
         [clojure.string  :only [join]]
         [clojure.java.io :only [file]]
-        [sensitivity.io  :only [read-data-from-directory]]))
+        [scanner.io  :only [read-data-from-directory]]))
 
 (def structure [{:neg "Xnegative" :pos "Xpositive"}
                 {:neg "Ynegative" :pos "Ypositive"}

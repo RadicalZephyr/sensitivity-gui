@@ -1,4 +1,4 @@
-(ns sensitivity.io
+(ns scanner.io
   (:import java.io.RandomAccessFile
            java.nio.ByteBuffer
            java.nio.ByteOrder))

@@ -1,8 +1,8 @@
-(ns sensitivity.acceptance
-  (:use [sensitivity.core :only [offset->string
-                                 sensitivity->string
-                                 validate-root-exists
-                                 calculate]]
+(ns scanner.acceptance
+  (:use [scanner.sensitivity :only [offset->string
+                                    sensitivity->string
+                                    validate-root-exists
+                                    calculate]]
         [clojure.string :only [join]]
         [clojure.java.shell :only [sh]]))
 

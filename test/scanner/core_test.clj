@@ -1,6 +1,6 @@
-(ns sensitivity.core-test
+(ns scanner.core-test
   (:use clojure.test
-        sensitivity.core))
+        scanner.sensitivity))
 
 (deftest a-test
   (testing "FIXME, I fail."

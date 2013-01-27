@@ -1,6 +1,6 @@
-(ns sensitivity.gui
-  (use [sensitivity.io :only [read-data-from-directory]]
-       [sensitivity.core :only [calculate]]
+(ns scanner.gui
+  (use [scanner.io :only [read-data-from-directory]]
+       [scanner.sensitivity :only [calculate]]
        seesaw.core
        [seesaw.chooser :only [choose-file]]))
 
@@ -47,7 +47,7 @@
                   (text :editable? false
                         :multi-line? true
                         :text (with-out-str
-                                (sensitivity.core/-main dir))))])))
+                                (scanner.sensitivity/-main dir))))])))
 
 (defn save-datum [root]
   )
