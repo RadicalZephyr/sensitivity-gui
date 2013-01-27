@@ -54,10 +54,21 @@
               (mapcat read-data-from-file
                       (list-files directory)))))
 
-(defn root-directory->datasets [root-dir dir-strc]
-  (iterate-structure
-   (partial directory->dataset root-dir)
-   dir-strc))
+(defn root-directory->datasets
+  ([root-path]
+     (root-directory->datasets root-path structure))
+  ([root-path dir-strc]
+     (iterate-structure
+      (partial directory->dataset root-path)
+      dir-strc)))
+
+(defn validate-root-exists [root-dir]
+  (let [root-file (file root-dir)]
+    (when (not (.exists root-file))
+      (binding [*out* *err*]
+        (prn "Error: " root-file " does not exist."))
+      (System/exit 1))
+    (str (.getCanonicalPath root-file) "/")))
 
 (defn -main
   "Takes a single argument, a folder that has the subfolders Xnegative,
@@ -66,21 +77,15 @@
   output of a scan).  Will print out the offsets and sensitivities of the
   scanner."
   [root-dir & args]
-  (let [root-file (file root-dir)]
-    (when (not (.exists root-dir))
-      (binding [*out* *err*]
-        (prn "Error: " root-dir " does not exist."))
-      (System/exit 1))
-
-    (let [root-path (str (.getCanonicalPath root-file) "/")
-          datasets (root-directory->datasets root-path
-                                             structure)
-          means    (iterate-structure dataset-mean
-                                      datasets)
-          offsets (get-offsets means)]
-      (prn "Offsets")
-      (prn (dataset-mean offsets))
-      (prn "Raw Offsets")
-      (prn offsets)
-      (prn "Sensitivities")
-      (prn (get-sensitivities means)))))
+  (let [root-path (validate-root-exists root-dir)
+        datasets (root-directory->datasets root-path
+                                           structure)
+        means    (iterate-structure dataset-mean
+                                    datasets)
+        offsets (get-offsets means)]
+    (prn "Offsets")
+    (prn (dataset-mean offsets))
+    (prn "Raw Offsets")
+    (prn offsets)
+    (prn "Sensitivities")
+    (prn (get-sensitivities means))))
