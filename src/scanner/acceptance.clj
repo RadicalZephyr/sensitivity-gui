@@ -74,6 +74,10 @@
     (clojure.set/intersection dir-test-cases
                               file-test-cases)))
 
+(defn find-test-executables
+  "Get a list of executables present in the \"bin/\" subdir."
+  [root-path])
+
 (defn -main
   "Run the acceptance test.  Takes a single argument of a folder.
   This folder should contain the requisite scans for doing a
@@ -90,12 +94,11 @@
   (let [root-path     (validate-root-exists root-dir)
         {:keys [offsets sensitivities]} (calculate root-dir)
         ;; Identify test-case names
-        test-cases (find-test-cases root-path)]
+        test-cases (find-test-cases root-path)
+        ;; Find the right acceptance executable (or executables) and maintain a version to exe mapping
+        agman-executables (find-test-executables root-path)]
     ;; Generate a config for this test
     (write-out-config root-path offsets sensitivities)
-
-    ;; Find the right acceptance executable (or executables) and maintain a version to exe mapping
-
     ;; Run the combinations of version X test-case.  These are the "actual" results
 
     ;; For each "actual", compare with the "expected"
