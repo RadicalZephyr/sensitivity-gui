@@ -1,11 +1,13 @@
 (ns scanner.acceptance
+  (:require clojure.set)
   (:use [scanner.io :only [list-files
                            list-directories]]
         [scanner.sensitivity :only [offset->string
                                     sensitivity->string
                                     validate-root-exists
                                     calculate]]
-        [clojure.string :only [join]]
+        [clojure.string :only [join
+                               split]]
         [clojure.java.shell :only [sh]]))
 
 
@@ -45,8 +47,32 @@
                 (str "[sensitivity_y] = " (sensitivity->string 1 sensitivities))
                 (str "[sensitivity_z] = " (sensitivity->string 2 sensitivities))]))))
 
+(defn dir->test-name
+  "Expects a java.io.File as directory"
+  [directory]
+  (first
+   (split
+    (.. directory
+        getCanonicalFile
+        getName)
+    #"\.d")))
+
+(defn file->test-name
+  "Expects a java.io.File as file"
+  [file]
+  (.. file
+      getCanonicalFile
+      getName))
+
 (defn find-test-cases [root-path]
-  )
+  (let [dir-test-cases (set
+                        (map dir->test-name
+                             (list-directories root-path)))
+        file-test-cases (set
+                         (map file->test-name
+                              (list-files root-path)))]
+    (clojure.set/intersection dir-test-cases
+                              file-test-cases)))
 
 (defn -main
   "Run the acceptance test.  Takes a single argument of a folder.
