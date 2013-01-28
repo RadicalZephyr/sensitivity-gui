@@ -87,6 +87,14 @@
   (map get-exe-for-version
        (list-directories (str root-path "bin/"))))
 
+(defn run-test-case [exe test-case])
+
+(defn get-expected-results [test-case])
+
+(defn compare-test-case [actual expected])
+
+(defn report-test-case-results [results] )
+
 (defn -main
   "Run the acceptance test.  Takes a single argument of a folder.
   This folder should contain the requisite scans for doing a
@@ -101,16 +109,20 @@
   The file acceptance.cfg will be re-created every time this runs."
   [root-dir]
   (let [root-path     (validate-root-exists root-dir)
-        {:keys [offsets sensitivities]} (calculate root-dir)
-        ;; Identify test-case names
-        test-cases (find-test-cases root-path)
-        ;; Find the right acceptance executable (or executables) and maintain a version to exe mapping
-        agman-executables (find-test-executables root-path)]
+        {:keys [offsets sensitivities]} (calculate root-dir)]
     ;; Generate a config for this test
     (write-out-config root-path offsets sensitivities)
     ;; Run the combinations of version X test-case.  These are the "actual" results
-
-    ;; For each "actual", compare with the "expected"
-
     ;; Produce output, in some format!
-    ))
+    (report-test-case-results
+     (for [ ;; Find the right acceptance executable (or executables) and
+           ;; maintain a version to exe mapping
+           exe (find-test-executables root-path)
+           ;; Identify test-case names
+           test-case (find-test-cases root-path)]
+
+       ;; For each "actual", compare with the "expected"
+       (compare-test-case
+        (run-test-case exe test-case)            ;; Actual
+        (get-expected-results test-case))))))    ;; Expected
+
