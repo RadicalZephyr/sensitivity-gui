@@ -87,13 +87,22 @@
   (map get-exe-for-version
        (list-directories (str root-path "bin/"))))
 
-(defn run-test-case [exe test-case])
+(defn run-test-case [exe config-file root-path test-case]
+  (sh :in (file root-path test-case)
+      (.getCanonicalPath exe)))
 
-(defn get-expected-results [test-case])
+(defn get-expected-results [root-path test-case]
+  (slurp (file root-path test-case)))
+
+(defn get-version-from-exe [exe]
+  (let [path-string (.getCanonicalPath exe)
+        path-components (split path-string #"/")]
+    (nth path-components
+         (- (count path-components) 2))))
 
 (defn compare-test-case [actual expected])
 
-(defn report-test-case-results [results] )
+(defn report-test-case-results [results])
 
 (defn -main
   "Run the acceptance test.  Takes a single argument of a folder.
@@ -121,8 +130,10 @@
            ;; Identify test-case names
            test-case (find-test-cases root-path)]
 
+       ;; Return a vector pair of ["version" <results>]
+       [(get-version-from-exe exe)
        ;; For each "actual", compare with the "expected"
-       (compare-test-case
-        (run-test-case exe test-case)            ;; Actual
-        (get-expected-results test-case))))))    ;; Expected
+        (compare-test-case
+         (run-test-case exe root-path test-case)            ;; Actual
+         (get-expected-results root-path test-case))]))))    ;; Expected
 
