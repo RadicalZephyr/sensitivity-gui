@@ -4,9 +4,9 @@
         [clojure.java.io :only [file]]
         [scanner.io  :only [read-data-from-directory]]))
 
-(def structure [{:neg "Xnegative" :pos "Xpositive"}
-                {:neg "Ynegative" :pos "Ypositive"}
-                {:neg "Znegative" :pos "Zpositive"}])
+(def structure [{:neg "Xnegative.d" :pos "Xpositive.d"}
+                {:neg "Ynegative.d" :pos "Ypositive.d"}
+                {:neg "Znegative.d" :pos "Zpositive.d"}])
 
 (defn- mean-2d [col]
   (map /
