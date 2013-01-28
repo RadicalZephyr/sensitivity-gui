@@ -6,6 +6,7 @@
                                     sensitivity->string
                                     validate-root-exists
                                     calculate]]
+        [clojure.java.io :only [file]]
         [clojure.string :only [join
                                split]]
         [clojure.java.shell :only [sh]]))
@@ -74,9 +75,17 @@
     (clojure.set/intersection dir-test-cases
                               file-test-cases)))
 
+(defn get-exe-for-version [version-dir]
+  (let [os-name (System/getProperty "os.name")]
+    (cond
+     (= "Linux" os-name) (file version-dir "acceptance")
+     (= "Windows" os-name) (file version-dir "acceptance.exe"))))
+
 (defn find-test-executables
   "Get a list of executables present in the \"bin/\" subdir."
-  [root-path])
+  [root-path]
+  (map get-exe-for-version
+       (list-directories (str root-path "bin/"))))
 
 (defn -main
   "Run the acceptance test.  Takes a single argument of a folder.
