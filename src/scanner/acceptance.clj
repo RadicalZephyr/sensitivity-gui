@@ -1,5 +1,7 @@
 (ns scanner.acceptance
-  (:use [scanner.sensitivity :only [offset->string
+  (:use [scanner.io :only [list-files
+                           list-directories]]
+        [scanner.sensitivity :only [offset->string
                                     sensitivity->string
                                     validate-root-exists
                                     calculate]]
@@ -33,8 +35,6 @@
 ;; there could be (and will eventually) multiple versions of agman
 ;; under test.  Also, we may potentially want to be able to compare
 ;; the metrics to each other over different version of agman.
-(defn list-directories [root]
-  )
 
 (defn write-out-config [root-path offsets sensitivities]
   (spit (str root-path "acceptance.cfg")

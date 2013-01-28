@@ -34,10 +34,19 @@
     (when (= magic-header FW-MAGIC-HEADER)
       (repeatedly sensor-length #(read-sensor-entry byte-buffer)))))
 
-(defn- list-files [directory]
-  (let [f (clojure.java.io/file directory)
-        fs (file-seq f)]
-    (drop 1 (sort fs))))
+(defn list-files [directory-name]
+  (.listFiles (java.io.File. directory-name)
+   (reify
+     java.io.FileFilter
+     (accept [this f]
+       (not (.isDirectory f))))))
+
+(defn list-directories [directory-name]
+  (.listFiles (java.io.File. directory-name)
+   (reify
+     java.io.FileFilter
+     (accept [this f]
+       (.isDirectory f)))))
 
 (defn read-data-from-file [file]
   (with-open [chn (open-channel file)]
