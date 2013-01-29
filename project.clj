@@ -5,7 +5,10 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :main scanner.gui
   :launch4j-config-file "resources/config.xml"
-  :plugins [[lein-launch4j "0.1.1"]]
+  :test-paths ["spec/"]
+  :plugins [[lein-launch4j "0.1.1"]
+            [speclj "2.5.0"]]
+  :profiles {:dev {:dependencies [[speclj "2.5.0"]]}}
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [incanter/incanter-core "1.3.0"]
                  [incanter/incanter-io "1.3.0"]
