@@ -1,32 +1,36 @@
 (ns scanner.acceptance-spec
   (:use speclj.core
         scanner.io
-        scanner.acceptance)
-  (:import java.io.File))
+        scanner.acceptance
+        [clojure.java.io :only [file]]))
 
 (describe "test-name conversions"
           (it "turns directories into test-names"
               (should= "test-name" (dir->test-name
-                                    (File. "test-name.d"))))
+                                    (file "test-name.d"))))
           (it "turns files into test-names"
               (should= "the-test" (file->test-name
-                                   (File. "the-test"))))
+                                   (file "the-test"))))
           (it "turns mutiple directories into test-names"
               (should= '("my-test" "another" "a-third")
-                       (map (comp dir->test-name #(File. %))
-                            ["my-test.d" "another.d" "a-third.d"]))))
+                       (map (comp dir->test-name file)
+                            ["my-test.d" "another.d" "a-third.d"])))
+          (it "turns multiple files into test-names"
+              (should= '("my-test" "another" "a-third")
+                       (map (comp file->test-name file)
+                            ["my-test" "another" "a-third"]))))
 
 (describe "find-test-cases"
           (around [it]
                   (with-redefs [list-files (fn [& _]
-                                             (map #(File. %)
+                                             (map file
                                                   ["my-test" "this-test" "notatest"]))
                                 list-directories (fn [& _]
-                                                   (map #(File. %)
+                                                   (map file
                                                         ["non-testy-dir" "this-test.d" "my-test.d"]))]
                     (it)))
 
-          (let [ test-cases (find-test-cases "non-root")]
+          (let [test-cases (find-test-cases "non-root")]
             (it "finds the right cases"
                 (should= #{"this-test" "my-test"} test-cases)
                 (should (and (contains? test-cases "this-test")
