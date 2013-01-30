@@ -5,7 +5,8 @@
         [scanner.sensitivity :only [offset->string
                                     sensitivity->string
                                     validate-root-exists
-                                    calculate]]
+                                    calculate
+                                    directory->dataset]]
         [clojure.java.io :only [file]]
         [clojure.string :only [join
                                split]]
@@ -46,14 +47,22 @@
 
 ;; More generally, the DSL can approach the thing like a physics
 ;; problem.  If you can specify in the DSL things like acceleration
-;; (which we can pretty much always assume is constant), then a proper
-;; description of motion over time can lead to a known (or reasonable)
-;; position at arbitrary times in between.  It will contain a lot of
-;; assumptions, but it's not too unreasonable (hopefully!!)
+;; (which we can pretty much always assume is constant, or even
+;; better, zero), then a proper description of motion over time can
+;; lead to a known (or reasonable) position at arbitrary times in
+;; between.  It will contain a lot of assumptions, but it's not too
+;; unreasonable (hopefully!!)
+
+;; In essence the DSL needs to be able to say, there was movement in
+;; this axis, it went x distance over y seconds.  Then the DSL will
+;; produce a function that can be run over the actual dataset and do
+;; the comparisons (possibly passed in as function parameters) and
+;; return a seq of results.
 
 ;; Motion capture idea.  In general, could use an ultrasonic sensor
 ;; for position (like in physics lab) and a digital encoder for
 ;; rotation...
+
 (defn write-out-config [root-path offsets sensitivities]
   (spit (str root-path "acceptance.cfg")
         (str
@@ -120,6 +129,32 @@
 (defn compare-test-case [actual expected])
 
 (defn report-test-case-results [results])
+
+;; This is a prototype of the output for the higher-order
+;; function/macro that will embody the DSL
+(defn run-compare [actual-ds expected-fn]
+  (for [{:keys [timestamp acc-x]}
+        (:rows
+         (incanter.core/sel actual-ds
+                            :cols [:timestamp :acc-x]))]
+    [(expected-fn timestamp) acc-x]))
+
+;; It should be generated from something looking like this:
+;; The device rotated in the x-axis through 90 degrees in ten seconds
+;;   (rotated x 90 10)
+(defn translated [inches seconds axis]
+  (let [axis-string (str "gyro-" axis)
+        axis-symbol (symbol axis-string)
+        velocity (/ inches seconds)
+        expected-fn (fn [timestamp]
+                      (* velocity timestamp))]
+    (fn [dataset]
+      (for [{:keys [timestamp axis-symbol]}
+            (:rows
+             (incanter.core/sel dataset
+                                :cols [:timestamp (keyword axis-string)]))]
+        [(expected-fn timestamp)
+         axis-symbol]))))
 
 (defn -main
   "Run the acceptance test.  Takes a single argument of a folder.

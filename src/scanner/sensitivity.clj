@@ -42,7 +42,7 @@
 (defn- get-means [datasets]
   (iterate-structure dataset-mean datasets))
 
-(defn- directory->dataset
+(defn directory->dataset
   ([root-dir filename]
      (directory->dataset (str root-dir filename)))
   ([directory]
