@@ -41,3 +41,9 @@
               (let [test-cases (find-test-cases "fake-root")]
                 (should-not (or (contains? test-cases "non-testy-dir")
                                 (contains? test-cases "notatest"))))))
+
+(describe "Getting version numbers"
+          (it "gets the number"
+              (should= "13.5"
+                       (get-version-from-exe
+                        (file "../blah/13.5/acceptance")))))
