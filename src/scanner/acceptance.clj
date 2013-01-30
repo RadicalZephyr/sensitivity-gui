@@ -96,7 +96,9 @@
 
 (defn get-version-from-exe [exe]
   (let [path-string (.getCanonicalPath exe)
-        path-components (split path-string #"/")]
+        path-components (split path-string
+                               (re-pattern
+                                (java.io.File/separator)))]
     (nth path-components
          (- (count path-components) 2))))
 
