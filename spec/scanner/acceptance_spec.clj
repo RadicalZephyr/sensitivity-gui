@@ -30,12 +30,14 @@
                                                         ["non-testy-dir" "this-test.d" "my-test.d"]))]
                     (it)))
 
-          (let [test-cases (find-test-cases "non-root")]
-            (it "finds the right cases"
+          (it "finds the right cases"
+              (let [test-cases (find-test-cases "fake-root")]
+                (should (set? test-cases))
                 (should= #{"this-test" "my-test"} test-cases)
                 (should (and (contains? test-cases "this-test")
                              (contains? test-cases "my-test")))))
-          (let [ test-cases (find-test-cases "non-root")]
-            (it "doesn't find the not-cases"
+
+          (it "doesn't find the not-cases"
+              (let [test-cases (find-test-cases "fake-root")]
                 (should-not (or (contains? test-cases "non-testy-dir")
                                 (contains? test-cases "notatest"))))))
