@@ -143,8 +143,7 @@
 ;; The device rotated in the x-axis through 90 degrees in ten seconds
 ;;   (rotated x 90 10)
 
-
-(defmacro delta-something [units milliseconds device-axis]
+(defn delta-something [units milliseconds device-axis]
   (let [axis-symbol (symbol device-axis)
         velocity (/ units milliseconds)]
     `(fn [~'dataset]
@@ -156,6 +155,12 @@
                                   :cols [:timestamp ~(keyword device-axis)]))]
           [(~'expected-fn ~'timestamp)
            ~axis-symbol])))))
+
+(defmacro rotated [degrees seconds axis]
+  (delta-something degrees (* seconds 1000) (str "gyro-" axis)))
+
+(defmacro translated [inches seconds axis]
+  (delta-something inches (* seconds 1000) (str "acc-" axis)))
 
 (defn -main
   "Run the acceptance test.  Takes a single argument of a folder.
