@@ -142,19 +142,20 @@
 ;; It should be generated from something looking like this:
 ;; The device rotated in the x-axis through 90 degrees in ten seconds
 ;;   (rotated x 90 10)
-(defn translated [inches seconds axis]
-  (let [axis-string (str "gyro-" axis)
-        axis-symbol (symbol axis-string)
-        velocity (/ inches seconds)
-        expected-fn (fn [timestamp]
-                      (* velocity timestamp))]
-    (fn [dataset]
-      (for [{:keys [timestamp axis-symbol]}
-            (:rows
-             (incanter.core/sel dataset
-                                :cols [:timestamp (keyword axis-string)]))]
-        [(expected-fn timestamp)
-         axis-symbol]))))
+
+
+(defmacro delta-something [units milliseconds device-axis]
+  (let [axis-symbol (symbol device-axis)
+        velocity (/ units milliseconds)]
+    `(fn [~'dataset]
+      (let [~'expected-fn (fn [~'timestamp]
+                          (* ~velocity ~'timestamp))]
+        (for [{:keys [~'timestamp ~axis-symbol]}
+              (:rows
+               (incanter.core/sel ~'dataset
+                                  :cols [:timestamp ~(keyword device-axis)]))]
+          [(~'expected-fn ~'timestamp)
+           ~axis-symbol])))))
 
 (defn -main
   "Run the acceptance test.  Takes a single argument of a folder.
