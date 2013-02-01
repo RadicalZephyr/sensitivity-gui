@@ -35,20 +35,22 @@
       (repeatedly sensor-length #(read-sensor-entry byte-buffer)))))
 
 (defn list-files [directory-name]
-  (seq
-   (.listFiles (java.io.File. directory-name)
-               (reify
-                 java.io.FileFilter
-                 (accept [this f]
-                   (not (.isDirectory f)))))))
+  (sort
+   (seq
+    (.listFiles (java.io.File. directory-name)
+                (reify
+                  java.io.FileFilter
+                  (accept [this f]
+                    (not (.isDirectory f))))))))
 
 (defn list-directories [directory-name]
-  (seq
-   (.listFiles (java.io.File. directory-name)
-               (reify
-                 java.io.FileFilter
-                 (accept [this f]
-                   (.isDirectory f))))))
+  (sort
+   (seq
+    (.listFiles (java.io.File. directory-name)
+                (reify
+                  java.io.FileFilter
+                  (accept [this f]
+                    (.isDirectory f)))))))
 
 (defn read-data-from-file [file]
   (with-open [chn (open-channel file)]
