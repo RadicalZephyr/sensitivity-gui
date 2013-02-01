@@ -152,8 +152,7 @@
       config-file
       :in (with-out-str
             (save-dataset dataset "-"
-                          :delim " "
-                          :header ""))))
+                          :delim " "))))
 
 (defn read-from-file [filename]
   (with-open
