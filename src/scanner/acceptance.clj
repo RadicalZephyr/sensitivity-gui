@@ -78,18 +78,19 @@
   (first
    (split
     (.. directory
-        getCanonicalFile
-        getName)
+        getCanonicalPath)
     #"\.d")))
 
 (defn file->test-name
   "Expects a java.io.File as file"
   [file]
   (.. file
-      getCanonicalFile
-      getName))
+      getCanonicalPath))
 
-(defn find-test-cases [root-path]
+(defn find-test-cases
+  "Returns a set of string representing all the test-cases found.  Use
+  test-name->dataset to get back the actual data from the test"
+  [root-path]
   (let [dir-test-cases (set
                         (map dir->test-name
                              (list-directories root-path)))
