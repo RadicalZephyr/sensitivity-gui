@@ -189,7 +189,7 @@
 (defn delta-something [units milliseconds device-axis]
   (let [axis-symbol (symbol device-axis)
         velocity (if (= 0 milliseconds)
-                   1
+                   0
                    (/ units milliseconds))]
     `(fn [~'dataset]
        (let [~'expected-fn (fn [~'timestamp]
@@ -199,7 +199,8 @@
                 (incanter.core/sel ~'dataset
                                    :cols [:timestamp
                                           ~(keyword device-axis)]))]
-           [(~'expected-fn ~'timestamp)
+           [~'timestamp
+            (~'expected-fn ~'timestamp)
             ~axis-symbol])))))
 
 (defmacro rotated [degrees seconds axis]
