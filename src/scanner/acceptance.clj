@@ -186,7 +186,7 @@
 (defn report-test-case-results [results]
   (clojure.pprint/pprint results))
 
-(defn delta-something [units milliseconds device-axis]
+(defn gen-delta-function [units milliseconds device-axis]
   (let [axis-symbol (symbol device-axis)
         velocity (if (= 0 milliseconds)
                    0
@@ -204,10 +204,10 @@
             ~axis-symbol])))))
 
 (defmacro rotated [degrees seconds axis]
-  (delta-something degrees (* seconds 1000) (str "gyro-" axis)))
+  (gen-delta-function degrees (* seconds 1000) (str "gyro-" axis)))
 
 (defmacro translated [inches seconds axis]
-  (delta-something inches (* seconds 1000) (str "acc-" axis)))
+  (gen-delta-function inches (* seconds 1000) (str "acc-" axis)))
 
 (defn -main
   "Run the acceptance test.  Takes a single argument of a folder.
