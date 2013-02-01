@@ -1,5 +1,7 @@
 (ns scanner.acceptance
-  (:require clojure.set)
+  (:require clojure.set
+            clojure.pprint
+            [incanter core io])
   (:use [scanner.io :only [list-files
                            list-directories]]
         [scanner.sensitivity :only [offset->string
@@ -147,12 +149,20 @@
   (map get-exe-for-version
        (list-directories (str root-path "bin/"))))
 
-(defn run-test-case [exe config-file [expected-fn dataset]]
-  (sh (.getCanonicalPath exe)
-      config-file
-      :in (with-out-str
-            (save-dataset dataset "-"
-                          :delim " "))))
+(defn string->dataset [string]
+  (with-redefs [incanter.core/get-input-reader
+                (fn [& args] (apply clojure.java.io/reader args))]
+    (incanter.io/read-dataset
+     (java.io.BufferedReader.
+      (java.io.StringReader. string)))))
+
+(defn run-test-case [exe config-file dataset]
+  (string->dataset
+   (:out (sh (.getCanonicalPath exe)
+             config-file
+             :in (with-out-str
+                   (save-dataset dataset "-"
+                                 :delim " "))))))
 
 (defn read-from-file [filename]
   (with-open
@@ -173,11 +183,14 @@
 
 (defn compare-test-case [actual expected])
 
-(defn report-test-case-results [results])
+(defn report-test-case-results [results]
+  (clojure.pprint/pprint results))
 
 (defn delta-something [units milliseconds device-axis]
   (let [axis-symbol (symbol device-axis)
-        velocity (/ units milliseconds)]
+        velocity (if (= 0 milliseconds)
+                   1
+                   (/ units milliseconds))]
     `(fn [~'dataset]
        (let [~'expected-fn (fn [~'timestamp]
                              (* ~velocity ~'timestamp))]
@@ -217,15 +230,16 @@
     ;; Produce output, in some format!
     (report-test-case-results
      (for [;; Iterate over test-datasets
-           test-case (map (juxt get-processing-function
-                                test-name->dataset)
-                          (find-test-cases root-path))
+           [generate-comparison dataset]
+           (map (juxt get-processing-function
+                      test-name->dataset)
+                (find-test-cases root-path))
            ;; and test-executables
            exe (find-test-executables root-path)]
 
        ;; Return a vector pair of ["version" <results>]
        [(get-version-from-exe exe)
         ;; For each "actual", compare with the "expected"
-        (run-test-case exe config-path test-case)            ;; Actual
-        ]))))    ;; Expected
+        (generate-comparison
+         (run-test-case exe config-path dataset))]))))
 
