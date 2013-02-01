@@ -65,10 +65,10 @@
 
 (defn write-out-config [root-path offsets sensitivities]
   (let [config-file-path (str root-path "acceptance.cfg")]
-    (spit
+    (spit config-file-path
      (str
       (join "\n"
-            [(str "[offset] = "        (offset->string offsets))
+            [(str "[offsets] = "        (offset->string offsets))
              (str "[sensitivity_x] = " (sensitivity->string
                                         0
                                         sensitivities))
@@ -152,19 +152,6 @@
 
 (defn report-test-case-results [results])
 
-;; This is a prototype of the output for the higher-order
-;; function/macro that will embody the DSL
-(defn run-compare [actual-ds expected-fn]
-  (for [{:keys [timestamp acc-x]}
-        (:rows
-         (incanter.core/sel actual-ds
-                            :cols [:timestamp :acc-x]))]
-    [(expected-fn timestamp) acc-x]))
-
-;; It should be generated from something looking like this:
-;; The device rotated in the x-axis through 90 degrees in ten seconds
-;;   (rotated x 90 10)
-
 (defn delta-something [units milliseconds device-axis]
   (let [axis-symbol (symbol device-axis)
         velocity (/ units milliseconds)]
@@ -174,7 +161,8 @@
          (for [{:keys [~'timestamp ~axis-symbol]}
                (:rows
                 (incanter.core/sel ~'dataset
-                                   :cols [:timestamp ~(keyword device-axis)]))]
+                                   :cols [:timestamp
+                                          ~(keyword device-axis)]))]
            [(~'expected-fn ~'timestamp)
             ~axis-symbol])))))
 
