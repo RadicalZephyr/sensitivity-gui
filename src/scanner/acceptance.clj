@@ -64,13 +64,21 @@
 ;; rotation...
 
 (defn write-out-config [root-path offsets sensitivities]
-  (spit (str root-path "acceptance.cfg")
-        (str
-         (join "\n"
-               [(str "[offset] = "        (offset->string offsets))
-                (str "[sensitivity_x] = " (sensitivity->string 0 sensitivities))
-                (str "[sensitivity_y] = " (sensitivity->string 1 sensitivities))
-                (str "[sensitivity_z] = " (sensitivity->string 2 sensitivities))]))))
+  (let [config-file-path (str root-path "acceptance.cfg")]
+    (spit
+     (str
+      (join "\n"
+            [(str "[offset] = "        (offset->string offsets))
+             (str "[sensitivity_x] = " (sensitivity->string
+                                        0
+                                        sensitivities))
+             (str "[sensitivity_y] = " (sensitivity->string
+                                        1
+                                        sensitivities))
+             (str "[sensitivity_z] = " (sensitivity->string
+                                        2
+                                        sensitivities))])))
+    config-file-path))
 
 (defn dir->test-name
   "Expects a java.io.File as directory"
@@ -100,6 +108,9 @@
     (clojure.set/intersection dir-test-cases
                               file-test-cases)))
 
+(defn test-name->dataset [test-name]
+  (directory->dataset (str test-name ".d")))
+
 (defn get-exe-for-version [version-dir]
   (let [os-name (System/getProperty "os.name")]
     (cond
@@ -112,12 +123,22 @@
   (map get-exe-for-version
        (list-directories (str root-path "bin/"))))
 
-(defn run-test-case [exe config-file root-path test-case]
-  (sh :in (file root-path test-case)
-      (.getCanonicalPath exe)))
+(defn run-test-case [exe config-file [expected-fn dataset]]
+  (let [temp-file ""]
+    (incanter.core/save dataset temp-file
+                        :delim " " :header [])
+    (sh (.getCanonicalPath exe)
+        config-file
+        :in temp-file)))
 
-(defn get-expected-results [root-path test-case]
-  (slurp (file root-path test-case)))
+(defn read-from-file [filename]
+  (with-open
+      [r (java.io.PushbackReader.
+          (clojure.java.io/reader filename))]
+    (read r)))
+
+(defn get-processing-function [test-case]
+  (eval (read-from-file test-case)))
 
 (defn get-version-from-exe [exe]
   (let [path-string (.getCanonicalPath exe)
@@ -148,14 +169,14 @@
   (let [axis-symbol (symbol device-axis)
         velocity (/ units milliseconds)]
     `(fn [~'dataset]
-      (let [~'expected-fn (fn [~'timestamp]
-                          (* ~velocity ~'timestamp))]
-        (for [{:keys [~'timestamp ~axis-symbol]}
-              (:rows
-               (incanter.core/sel ~'dataset
-                                  :cols [:timestamp ~(keyword device-axis)]))]
-          [(~'expected-fn ~'timestamp)
-           ~axis-symbol])))))
+       (let [~'expected-fn (fn [~'timestamp]
+                             (* ~velocity ~'timestamp))]
+         (for [{:keys [~'timestamp ~axis-symbol]}
+               (:rows
+                (incanter.core/sel ~'dataset
+                                   :cols [:timestamp ~(keyword device-axis)]))]
+           [(~'expected-fn ~'timestamp)
+            ~axis-symbol])))))
 
 (defmacro rotated [degrees seconds axis]
   (delta-something degrees (* seconds 1000) (str "gyro-" axis)))
@@ -177,22 +198,23 @@
   The file acceptance.cfg will be re-created every time this runs."
   [root-dir]
   (let [root-path     (validate-root-exists root-dir)
-        {:keys [offsets sensitivities]} (calculate root-dir)]
+        {:keys [offsets sensitivities]} (calculate root-dir)
+        config-path (write-out-config root-path offsets sensitivities)]
     ;; Generate a config for this test
-    (write-out-config root-path offsets sensitivities)
+
     ;; Run the combinations of version X test-case.  These are the "actual" results
     ;; Produce output, in some format!
     (report-test-case-results
-     (for [ ;; Find the right acceptance executable (or executables) and
-           ;; maintain a version to exe mapping
-           exe (find-test-executables root-path)
-           ;; Identify test-case names
-           test-case (find-test-cases root-path)]
+     (for [;; Iterate over test-datasets
+           test-case (map (juxt get-processing-function
+                                test-name->dataset)
+                          (find-test-cases root-path))
+           ;; and test-executables
+           exe (find-test-executables root-path)]
 
        ;; Return a vector pair of ["version" <results>]
        [(get-version-from-exe exe)
-       ;; For each "actual", compare with the "expected"
-        (compare-test-case
-         (run-test-case exe root-path test-case)            ;; Actual
-         (get-expected-results root-path test-case))]))))    ;; Expected
+        ;; For each "actual", compare with the "expected"
+        (run-test-case exe config-path test-case)            ;; Actual
+        ]))))    ;; Expected
 
