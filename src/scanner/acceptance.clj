@@ -148,12 +148,12 @@
        (list-directories (str root-path "bin/"))))
 
 (defn run-test-case [exe config-file [expected-fn dataset]]
-  (let [temp-file ""]
-    (incanter.core/save dataset temp-file
-                        :delim " " :header [])
-    (sh (.getCanonicalPath exe)
-        config-file
-        :in temp-file)))
+  (sh (.getCanonicalPath exe)
+      config-file
+      :in (with-out-str
+            (save-dataset dataset "-"
+                          :delim " "
+                          :header ""))))
 
 (defn read-from-file [filename]
   (with-open
