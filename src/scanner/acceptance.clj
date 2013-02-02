@@ -164,9 +164,10 @@
                                  :delim " "))))))
 
 (defn get-processing-function [test-case]
-  (try (load-file test-case)
-       (catch Exception e
-         (throw (Exception. "Error loading test description" e)))))
+  (binding [*ns* (find-ns 'scanner.acceptance)]
+   (try (load-file test-case)
+        (catch Exception e
+          (throw (Exception. (str "Error loading test description: " test-case) e))))))
 
 (defn get-version-from-exe [exe]
   (let [path-string (.getCanonicalPath exe)
