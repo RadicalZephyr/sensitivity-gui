@@ -163,14 +163,10 @@
                    (save-dataset dataset "-"
                                  :delim " "))))))
 
-(defn read-from-file [filename]
-  (with-open
-      [r (java.io.PushbackReader.
-          (clojure.java.io/reader filename))]
-    (read r)))
-
 (defn get-processing-function [test-case]
-  (eval (read-from-file test-case)))
+  (try (load-file test-case)
+       (catch Exception e
+         (throw (Exception. "Error loading test description" e)))))
 
 (defn get-version-from-exe [exe]
   (let [path-string (.getCanonicalPath exe)
