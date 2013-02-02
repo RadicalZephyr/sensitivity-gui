@@ -118,8 +118,7 @@
 (defn file->test-name
   "Expects a java.io.File as file"
   [file]
-  (.. file
-      getCanonicalPath))
+  (.getCanonicalPath file))
 
 (defn find-test-cases
   "Returns a set of string representing all the test-cases found.  Use
