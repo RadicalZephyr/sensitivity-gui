@@ -47,3 +47,21 @@
               (should= "13.5"
                        (get-version-from-exe
                         (file "../blah/13.5/acceptance")))))
+
+(describe "Reading code from a file in context"
+          (it "returns a function"
+              (should (fn?
+                       (with-redefs [load-file (fn [& _] (fn []))]
+                         (get-processing-function "dummy-file")))))
+          (it "throws an exception when the code is bad"
+              (with-redefs [load-file (fn [& _] (throw (Exception.)))]
+                (should-throw (get-processing-function "dummy-file")))))
+
+
+
+
+
+
+
+
+
