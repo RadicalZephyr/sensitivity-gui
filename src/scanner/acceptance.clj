@@ -112,13 +112,16 @@
   (first
    (split
     (.. directory
-        getCanonicalPath)
+        getCanonicalFile
+        getName)
     #"\.d")))
 
 (defn file->test-name
   "Expects a java.io.File as file"
   [file]
-  (.getCanonicalPath file))
+  (.. file
+      getCanonicalFile
+      getName))
 
 (defn find-test-cases
   "Returns a set of string representing all the test-cases found.  Use
