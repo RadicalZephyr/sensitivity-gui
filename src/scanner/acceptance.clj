@@ -154,9 +154,11 @@
 (defn string->dataset [headers string]
   (with-redefs [incanter.core/get-input-reader
                 (fn [& args] (apply clojure.java.io/reader args))]
-    (incanter.io/read-dataset
-     (java.io.BufferedReader.
-      (java.io.StringReader. string)))))
+    (incanter.core/col-names
+     (incanter.io/read-dataset
+      (java.io.BufferedReader.
+       (java.io.StringReader. string)))
+     headers)))
 
 (defn run-test-case [exe config-file dataset]
   (string->dataset

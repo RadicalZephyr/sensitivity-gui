@@ -23,7 +23,7 @@ component"
         (System/setProperty "os.name" old-os-name)))
 
 (fact "string->dataset should return a dataset"
-      (string->dataset [] "123")          => ic/dataset?
+      (string->dataset [:fake] "123")          => ic/dataset?
       (string->dataset [:col0 :col1 :col2] "1,2,3\n4,5,6")
         => (ic/dataset [:col0 :col1 :col2]
                        [[1 2 3]
@@ -52,3 +52,14 @@ component"
                                            [[1 10 0]
                                             [2 20 0]
                                             [3 30 0]])))
+
+(fact "Run test case should return a dataset or nil"
+      (run-test-case (io/file "exe") ...cfg... ...dataset...)
+        => (ic/dataset [:timestamp
+                        :acc-x :acc-y :acc-z
+                        :gyro-x :gyro-y :gyro-z]
+                       [[0 1 1 1 2 2 2]
+                        [1 2 2 2 3 3 3]])
+      (provided
+       (clojure.java.shell/sh anything anything :in anything)
+       => {:out "0,1,1,1,2,2,2\n1,2,2,2,3,3,3"}))
