@@ -242,8 +242,9 @@
         config-path (write-out-config root-path offsets sensitivities)]
     ;; Generate a config for this test
 
-    ;; Run the combinations of version X test-case.  These are the "actual" results
-    ;; Produce output, in some format!
+    ;; Run the combinations of version X test-case.
+    ;; These are the "actual" results
+    ;; TODO: Produce output, in some format!
     (for [;; Iterate over test-datasets
           [generate-comparison dataset]
           (process-test-names root-path )
