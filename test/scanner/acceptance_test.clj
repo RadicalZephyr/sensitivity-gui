@@ -23,9 +23,11 @@ component"
         (System/setProperty "os.name" old-os-name)))
 
 (fact "string->dataset should return a dataset"
-      (string->dataset "123")          => ic/dataset?
-      (string->dataset "1,2,3\n4,5,6") => (ic/dataset [:col0 :col1 :col2]
-                                                      [[1 2 3] [4 5 6]]))
+      (string->dataset [] "123")          => ic/dataset?
+      (string->dataset [:col0 :col1 :col2] "1,2,3\n4,5,6")
+        => (ic/dataset [:col0 :col1 :col2]
+                       [[1 2 3]
+                        [4 5 6]]))
 
 (fact "Executable paths contain versions as their second-to-last
 component"

@@ -151,7 +151,7 @@
   (map get-exe-for-version
        (list-directories (str root-path "bin/"))))
 
-(defn string->dataset [string]
+(defn string->dataset [headers string]
   (with-redefs [incanter.core/get-input-reader
                 (fn [& args] (apply clojure.java.io/reader args))]
     (incanter.io/read-dataset
@@ -160,6 +160,7 @@
 
 (defn run-test-case [exe config-file dataset]
   (string->dataset
+   [:timestamp :acc-x :acc-y :acc-z :gyro-x :gyro-y :gyro-z]
    (:out (sh (.getCanonicalPath exe)
              config-file
              :in (with-out-str
@@ -200,7 +201,7 @@
     `(fn [~'dataset]
        (let [~'expected-fn (fn [~'timestamp]
                              (* ~velocity ~'timestamp))]
-         (ic/dataset [:timestamp :actual :expected]
+         (incanter.core/dataset [:timestamp :actual :expected]
           (for [{:keys [~'timestamp ~axis-symbol]}
                 (:rows
                  (incanter.core/sel ~'dataset
