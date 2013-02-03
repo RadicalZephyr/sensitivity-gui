@@ -220,6 +220,10 @@
 (defmacro translated [inches seconds axis]
   (gen-delta-function inches (* seconds 1000) (str "acc-" axis)))
 
+;; The current output of this can be visualized using something like:
+;; (ic/with-data cds
+;;   (ic/view (-> (ich/time-series-plot :timestamp :expected)
+;;                (ich/add-lines :timestamp :actual))))
 (defn -main
   "Run the acceptance test.  Takes a single argument of a folder.
   This folder should contain the requisite scans for doing a
@@ -240,16 +244,16 @@
 
     ;; Run the combinations of version X test-case.  These are the "actual" results
     ;; Produce output, in some format!
-    (report-test-case-results
-     (for [;; Iterate over test-datasets
-           [generate-comparison dataset]
-           (process-test-names root-path )
-           ;; and test-executables
-           exe (find-test-executables root-path)]
+    (for [;; Iterate over test-datasets
+          [generate-comparison dataset]
+          (process-test-names root-path )
+          ;; and test-executables
+          exe (find-test-executables root-path)]
 
-       ;; Return a vector pair of ["version" <results>]
-       [(get-version-from-exe exe)
-        ;; For each "actual", compare with the "expected"
-        (generate-comparison
-         (run-test-case exe config-path dataset))]))))
+      ;; Return a vector pair of ["version" <results>]
+      [(get-version-from-exe exe)
+       ;; For each test produce a dataset of:
+       ;;  [:timestamp :actual :expected]
+       (generate-comparison
+        (run-test-case exe config-path dataset))])))
 

@@ -11,4 +11,5 @@
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [incanter/incanter-core "1.3.0"]
                  [incanter/incanter-io "1.3.0"]
+                 [incanter/incanter-charts "1.3.0"]
                  [seesaw "1.4.2"]])
