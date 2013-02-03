@@ -200,14 +200,15 @@
     `(fn [~'dataset]
        (let [~'expected-fn (fn [~'timestamp]
                              (* ~velocity ~'timestamp))]
-         (for [{:keys [~'timestamp ~axis-symbol]}
-               (:rows
-                (incanter.core/sel ~'dataset
-                                   :cols [:timestamp
-                                          ~(keyword device-axis)]))]
-           [~'timestamp
-            (~'expected-fn ~'timestamp)
-            ~axis-symbol])))))
+         (ic/dataset [:timestamp :actual :expected]
+          (for [{:keys [~'timestamp ~axis-symbol]}
+                (:rows
+                 (incanter.core/sel ~'dataset
+                                    :cols [:timestamp
+                                           ~(keyword device-axis)]))]
+            [~'timestamp
+             ~axis-symbol
+             (~'expected-fn ~'timestamp)]))))))
 
 (defmacro rotated [degrees seconds axis]
   (gen-delta-function degrees (* seconds 1000) (str "gyro-" axis)))

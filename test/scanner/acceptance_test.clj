@@ -26,10 +26,27 @@ component"
       (string->dataset "123")          => ic/dataset?
       (string->dataset "1,2,3\n4,5,6") => (ic/dataset [:col0 :col1 :col2]
                                                       [[1 2 3] [4 5 6]]))
-(fact "executable paths contain versions as their second-to-last
+
+(fact "Executable paths contain versions as their second-to-last
 component"
       (get-version-from-exe
        (io/file "v0.15.1/acceptance")) => "v0.15.1"
        (get-version-from-exe
         (io/file "some/extra/stuff/v0.1.0/nothing")) => "v0.1.0")
 
+(fact "Expectation macros return functions"
+      (rotated 0 0 x) => fn?
+      (rotated 10 1 x) => fn?
+      (translated 0 0 x) => fn?
+      (translated 10 1 x) => fn?)
+
+(fact "gen-delta-function returns a function that can iterate over datasets"
+      (let [delta-function (rotated 0 0 x)
+            ds (ic/dataset [:timestamp :gyro-x]
+                           [[1 10]
+                            [2 20]
+                            [3 30]])]
+        (delta-function ds) => (ic/dataset [:timestamp :actual :expected]
+                                           [[1 10 0]
+                                            [2 20 0]
+                                            [3 30 0]])))
