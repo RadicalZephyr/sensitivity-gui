@@ -24,7 +24,7 @@ component"
 
 (fact "string->dataset should return a dataset"
       (string->dataset [:fake] "123")          => ic/dataset?
-      (string->dataset [:col0 :col1 :col2] "1,2,3\n4,5,6")
+      (string->dataset [:col0 :col1 :col2] "1 2 3\n4 5 6")
         => (ic/dataset [:col0 :col1 :col2]
                        [[1 2 3]
                         [4 5 6]]))
@@ -62,4 +62,4 @@ component"
                         [1 2 2 2 3 3 3]])
       (provided
        (clojure.java.shell/sh anything anything :in anything)
-       => {:out "0,1,1,1,2,2,2\n1,2,2,2,3,3,3"}))
+       => {:out "0 1 1 1 2 2 2\n1 2 2 2 3 3 3"}))

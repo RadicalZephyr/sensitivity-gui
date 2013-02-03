@@ -157,7 +157,8 @@
     (incanter.core/col-names
      (incanter.io/read-dataset
       (java.io.BufferedReader.
-       (java.io.StringReader. string)))
+       (java.io.StringReader. string))
+      :delim \space)
      headers)))
 
 (defn run-test-case [exe config-file dataset]
