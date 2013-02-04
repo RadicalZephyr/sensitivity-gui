@@ -190,11 +190,11 @@
 (defn report-test-case-results [results]
   (clojure.pprint/pprint results))
 
-(defn process-test-names [root-path]
+(defn process-test-names [root-path test-cases]
   (map (comp (juxt get-processing-function
                    test-name->dataset)
              (partial str root-path))
-       (find-test-cases root-path)))
+       test-cases))
 
 (defn gen-delta-function [units milliseconds device-axis]
   (let [axis-symbol (symbol device-axis)
@@ -247,7 +247,8 @@
     ;; TODO: Produce output, in some format!
     (for [;; Iterate over test-datasets
           [generate-comparison dataset]
-          (process-test-names root-path )
+          (process-test-names root-path
+                              (find-test-cases root-path))
           ;; and test-executables
           exe (find-test-executables root-path)]
 
