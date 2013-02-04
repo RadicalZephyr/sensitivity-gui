@@ -196,6 +196,12 @@
               :timestamp ds)
      (ic/sel ds :except-cols :timestamp))))
 
+(defn mean [coll]
+  (let [len (count coll)]
+    (if (zero? len)
+      0
+      (/ (reduce + coll) len))))
+
 (defn compare-test-case [actual expected])
 
 (defn report-test-case-results [results]
@@ -207,6 +213,15 @@
                    test-name->dataset)
              (partial str root-path))
        test-cases))
+
+(defn absolute-error [expected actual]
+  (ic/abs (- expected actual)))
+
+(defn relative-error [expected actual]
+  (let [abs-err (absolute-error expected actual)]
+    (if (= 0 expected)
+      abs-err
+      (* 100 (/ abs-err expected)))))
 
 (defn gen-delta-function [units milliseconds device-axis]
   (let [axis-symbol (symbol device-axis)
@@ -266,12 +281,18 @@
 
       ;; For each test produce a dataset of:
       ;;  [:timestamp :actual :expected]
-      (ic/with-data (generate-comparison
-                     (run-test-case exe config-path
-                                    (normalize-dataset dataset)))
-        (ic/view (-> (ich/xy-plot :timestamp :expected)
-                     (ich/add-lines :timestamp :actual)
-                     (ich/set-title (str test-name
-                                         " - "
-                                         (get-version-from-exe exe)))))))))
+      [(last (split test-name #"/"))
+       (get-version-from-exe exe)
+       (mean (map #(apply - %)
+                  (partition 2 1
+                             (ic/$map absolute-error [:expected :actual]
+                                      (generate-comparison
+                                       (run-test-case exe config-path
+                                                      (normalize-dataset dataset)))))))])))
 
+;; The most meaningful value is going to be absolute error.  It's
+;; defined for any set of points and not dependent on units.
+
+;; So if I take the absolute error, and juxtapose it against time,
+;; then I can find the slope between every two points in time, giving
+;; me the rate of change of the error.
