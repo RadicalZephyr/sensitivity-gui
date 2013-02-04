@@ -1,7 +1,10 @@
 (ns scanner.acceptance
   (:require clojure.set
             clojure.pprint
-            [incanter core io])
+            [incanter
+             [core :as ic]
+             [io :as ioc]
+             [charts :as ich]])
   (:use [scanner.io :only [list-files
                            list-directories]]
         [scanner.sensitivity :only [offset->string
@@ -152,10 +155,10 @@
        (list-directories (str root-path "bin/"))))
 
 (defn string->dataset [headers string]
-  (with-redefs [incanter.core/get-input-reader
+  (with-redefs [ic/get-input-reader
                 (fn [& args] (apply clojure.java.io/reader args))]
-    (incanter.core/col-names
-     (incanter.io/read-dataset
+    (ic/col-names
+     (ioc/read-dataset
       (java.io.BufferedReader.
        (java.io.StringReader. string))
       :delim \space)
@@ -213,10 +216,10 @@
     `(fn [~'dataset]
        (let [~'expected-fn (fn [~'timestamp]
                              (* ~velocity ~'timestamp))]
-         (incanter.core/dataset [:timestamp :actual :expected]
+         (ic/dataset [:timestamp :actual :expected]
           (for [{:keys [~'timestamp ~axis-symbol]}
                 (:rows
-                 (incanter.core/sel ~'dataset
+                 (ic/sel ~'dataset
                                     :cols [:timestamp
                                            ~(keyword device-axis)]))]
             [~'timestamp
