@@ -199,7 +199,8 @@
   (clojure.pprint/pprint results))
 
 (defn process-test-names [root-path test-cases]
-  (map (comp (juxt get-processing-function
+  (map (comp (juxt identity
+                   get-processing-function
                    test-name->dataset)
              (partial str root-path))
        test-cases))
@@ -254,16 +255,20 @@
     ;; These are the "actual" results
     ;; TODO: Produce output, in some format!
     (for [;; Iterate over test-datasets
-          [generate-comparison dataset]
+          [test-name generate-comparison dataset]
           (process-test-names root-path
                               (find-test-cases root-path))
           ;; and test-executables
           exe (find-test-executables root-path)]
 
-      ;; Return a vector pair of ["version" <results>]
-      [(get-version-from-exe exe)
-       ;; For each test produce a dataset of:
-       ;;  [:timestamp :actual :expected]
-       (generate-comparison
-        (run-test-case exe config-path (normalize-dataset dataset)))])))
+      ;; For each test produce a dataset of:
+      ;;  [:timestamp :actual :expected]
+      (ic/with-data (generate-comparison
+                     (run-test-case exe config-path
+                                    (normalize-dataset dataset)))
+        (ic/view (-> (ich/xy-plot :timestamp :expected)
+                     (ich/add-lines :timestamp :actual)
+                     (ich/set-title (str test-name
+                                         " - "
+                                         (get-version-from-exe exe)))))))))
 
