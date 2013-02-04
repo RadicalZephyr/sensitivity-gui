@@ -185,6 +185,14 @@
     (nth path-components
          (- (count path-components) 2))))
 
+(defn normalize-dataset [ds]
+  (let [base-time (ic/sel ds :rows 0 :cols :timestamp)]
+    (ic/conj-cols
+     (ic/$map (fn [timestamp]
+                {:timestamp (- timestamp base-time)})
+              :timestamp ds)
+     (ic/sel ds :except-cols :timestamp))))
+
 (defn compare-test-case [actual expected])
 
 (defn report-test-case-results [results]
@@ -257,5 +265,5 @@
        ;; For each test produce a dataset of:
        ;;  [:timestamp :actual :expected]
        (generate-comparison
-        (run-test-case exe config-path dataset))])))
+        (run-test-case exe config-path (normalize-dataset dataset)))])))
 
