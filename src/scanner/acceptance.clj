@@ -223,29 +223,38 @@
       abs-err
       (* 100 (/ abs-err expected)))))
 
-(defn gen-delta-function [units milliseconds device-axis]
+(defn gen-delta-function [units milliseconds time-offset-ms device-axis]
   (let [axis-symbol (symbol device-axis)
         velocity (if (= 0 milliseconds)
                    0
                    (/ units milliseconds))]
     `(fn [~'dataset]
        (let [~'expected-fn (fn [~'timestamp]
-                             (* ~velocity ~'timestamp))]
+                             (* ~velocity (- ~'timestamp
+                                             ~time-offset-ms)))]
          (ic/dataset [:timestamp :actual :expected]
           (for [{:keys [~'timestamp ~axis-symbol]}
                 (:rows
-                 (ic/sel ~'dataset
-                                    :cols [:timestamp
-                                           ~(keyword device-axis)]))]
+                 (ic/sel ~'dataset ;; Assumes :timestamp is the first
+                                   ;; value
+                         :filter #(> (nth % 0) ~time-offset-ms)
+                         :cols [:timestamp
+                                ~(keyword device-axis)]))]
             [~'timestamp
              ~axis-symbol
              (~'expected-fn ~'timestamp)]))))))
 
-(defmacro rotated [degrees seconds axis]
-  (gen-delta-function degrees (* seconds 1000) (str "gyro-" axis)))
+(defmacro rotated [degrees duration start-time axis]
+  (gen-delta-function degrees
+                      (* duration 1000)
+                      (* start-time 1000)
+                      (str "gyro-" axis)))
 
-(defmacro translated [inches seconds axis]
-  (gen-delta-function inches (* seconds 1000) (str "acc-" axis)))
+(defmacro translated [inches duration start-time axis]
+  (gen-delta-function inches
+                      (* duration 1000)
+                      (* start-time 1000)
+                      (str "acc-" axis)))
 
 ;; The current output of this can be visualized using something like:
 ;; (ic/with-data cds

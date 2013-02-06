@@ -37,13 +37,13 @@ component"
         (io/file "some/extra/stuff/v0.1.0/nothing")) => "v0.1.0")
 
 (fact "Expectation macros return functions"
-      (rotated 0 0 x) => fn?
-      (rotated 10 1 x) => fn?
-      (translated 0 0 x) => fn?
-      (translated 10 1 x) => fn?)
+      (rotated 0 0 0 x) => fn?
+      (rotated 10 1 1 x) => fn?
+      (translated 0 0 0 x) => fn?
+      (translated 10 1 1 x) => fn?)
 
 (fact "gen-delta-function returns a function that can iterate over datasets"
-      (let [delta-function (rotated 0 0 x)
+      (let [delta-function (rotated 0 0 0 x)
             ds (ic/dataset [:timestamp :gyro-x]
                            [[1 10]
                             [2 20]
