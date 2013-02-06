@@ -281,23 +281,25 @@
     ;; Run the combinations of version X test-case.
     ;; These are the "actual" results
     ;; TODO: Produce output, in some format!
-    (for [;; Iterate over test-datasets
-          [test-name generate-comparison dataset]
-          (process-test-names root-path
-                              (find-test-cases root-path))
-          ;; and test-executables
-          exe (find-test-executables root-path)]
+    (clojure.pprint/pprint
+     (for [ ;; Iterate over test-datasets
+           [test-name generate-comparison dataset]
+           (process-test-names root-path
+                               (find-test-cases root-path))
+           ;; and test-executables
+           exe (find-test-executables root-path)]
 
-      ;; For each test produce a dataset of:
-      ;;  [:timestamp :actual :expected]
-      [(last (split test-name #"/"))
-       (get-version-from-exe exe)
-       (mean (map #(apply - %)
-                  (partition 2 1
-                             (ic/$map absolute-error [:expected :actual]
-                                      (generate-comparison
-                                       (run-test-case exe config-path
-                                                      (normalize-dataset dataset)))))))])))
+       ;; For each test produce a dataset of:
+       ;;  [:timestamp :actual :expected]
+       [(last (split test-name #"/"))
+        (get-version-from-exe exe)
+        (mean (map #(apply - %)
+                   (partition 2 1
+                              (ic/$map absolute-error [:expected :actual]
+                                       (generate-comparison
+                                        (run-test-case exe config-path
+                                                       (normalize-dataset dataset)))))))]))
+    (shutdown-agents)))
 
 ;; The most meaningful value is going to be absolute error.  It's
 ;; defined for any set of points and not dependent on units.
