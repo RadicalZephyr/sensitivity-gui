@@ -296,6 +296,11 @@
        ;;  [:timestamp :actual :expected]
        [(last (split test-name #"/"))
         (get-version-from-exe exe)
+        ;; Instead of this patchwork number for error, implement RMS
+        ;; Root Mean Squared error (very descriptive of the formula
+        ;; used), square the error (difference between true and
+        ;; actual), mean those squares, then take the root of that
+        ;; Also add the absolute ending offset/error
         (mean (map #(if (every? number? %)
                       (apply - %)
                       (do
