@@ -215,7 +215,10 @@
        test-cases))
 
 (defn absolute-error [expected actual]
-  (ic/abs (- expected actual)))
+  (if (and (number? expected)
+           (number? actual))
+    (ic/abs (- expected actual))
+    (print-str "Expected: " expected "actual:" actual)))
 
 (defn relative-error [expected actual]
   (let [abs-err (absolute-error expected actual)]
@@ -293,7 +296,11 @@
        ;;  [:timestamp :actual :expected]
        [(last (split test-name #"/"))
         (get-version-from-exe exe)
-        (mean (map #(apply - %)
+        (mean (map #(if (every? number? %)
+                      (apply - %)
+                      (do
+                        (prn %)
+                        0))
                    (partition 2 1
                               (ic/$map absolute-error [:expected :actual]
                                        (generate-comparison
