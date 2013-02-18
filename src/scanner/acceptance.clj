@@ -240,7 +240,9 @@
                 (:rows
                  (ic/sel ~'dataset ;; Assumes :timestamp is the first
                                    ;; value
-                         :filter #(> (nth % 0) ~time-offset-ms)
+                         :filter #(and (> (nth % 0) ~time-offset-ms)
+                                       (< (nth % 0) (+ ~time-offset-ms
+                                                       ~milliseconds)))
                          :cols [:timestamp
                                 ~(keyword device-axis)]))]
             [~'timestamp
@@ -291,26 +293,18 @@
                                (find-test-cases root-path))
            ;; and test-executables
            exe (find-test-executables root-path)]
-
-       ;; For each test produce a dataset of:
-       ;;  [:timestamp :actual :expected]
-       [(last (split test-name #"/"))
-        (get-version-from-exe exe)
-        ;; Instead of this patchwork number for error, implement RMS
-        ;; Root Mean Squared error (very descriptive of the formula
-        ;; used), square the error (difference between true and
-        ;; actual), mean those squares, then take the root of that
-        ;; Also add the absolute ending offset/error
-        (mean (map #(if (every? number? %)
-                      (apply - %)
-                      (do
-                        (prn %)
-                        0))
-                   (partition 2 1
-                              (ic/$map absolute-error [:expected :actual]
-                                       (generate-comparison
-                                        (run-test-case exe config-path
-                                                       (normalize-dataset dataset)))))))]))
+       (let [errors (ic/$map absolute-error [:expected :actual]
+                             (generate-comparison
+                              (run-test-case exe config-path
+                                             (normalize-dataset dataset))))
+             rms (ic/sqrt (/ (ic/sum-of-squares errors)
+                             (count errors)))]
+         ;; For each test produce a dataset of:
+           ;;  [:timestamp :actual :expected]
+           [(last (split test-name #"/"))
+            (get-version-from-exe exe)
+            rms
+            (last errors)])))
     (shutdown-agents)))
 
 ;; The most meaningful value is going to be absolute error.  It's
