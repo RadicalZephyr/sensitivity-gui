@@ -245,8 +245,9 @@
      :end-expected (efn end-ts)
      :end-actual end-actual}))
 
-(defn process-test [dataset {:keys [start-time duration
-                                    radius axis-descriptions]}]
+(defn process-test [dataset {:keys [start-time duration radius
+                                    axis-descriptions]
+                             :or {:radius 0}}]
   (let [[pre-ds test-ds post-ds] (split-dataset dataset
                                                 start-time
                                                 duration)]
