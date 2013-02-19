@@ -262,10 +262,16 @@
     (for [[device-axis distance] (get-axis-descriptions test-description)]
       (let [efn (gen-efn start-time duration distance)
             pre-efn (fn [ts] 0)
-            post-efn (fn [ts] (+ start-time duration))]
-        {device-axis {:pre-test  (check-expectations pre-ds  pre-efn)
-                      :test      (check-expectations test-ds efn)
-                      :post-test (check-expectations post-ds post-efn)}}))))
+            post-efn (fn [ts] (efn (+ start-time duration)))]
+        {device-axis {:pre-test  (check-expectations pre-ds
+                                                     pre-efn
+                                                     device-axis)
+                      :test      (check-expectations test-ds
+                                                     efn
+                                                     device-axis)
+                      :post-test (check-expectations post-ds
+                                                     post-efn
+                                                     device-axis)}}))))
 
 (defn -main
   "Run the acceptance test.  Takes a single argument of a folder.
