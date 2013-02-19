@@ -90,6 +90,11 @@ velocity, or zero"
                                            [[38 39 39]
                                             [90 99 99]])])
 
+(fact "Last-row returns the specified columns in the last row of a dataset"
+      (last-row (ic/dataset [:1 :2]
+                         [[1 2] [3 4] [5 6]])
+                [:1 :2]) => [5 6])
+
 (fact "Process test should return a map of results"
       (process-test ...dataset...
                     :start-time ...start-time...

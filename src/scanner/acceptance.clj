@@ -212,6 +212,10 @@
 
 (defn check-expectations [dataset efn]
   )
+(defn last-row [ds columns]
+  (let [last-map (last (:rows (ic/sel ds :columns columns)))]
+    (vec (map #(% last-map) columns))))
+
 
 (defn process-test [dataset & {:keys [start-time duration
                                       radius axis-descriptions]}]
