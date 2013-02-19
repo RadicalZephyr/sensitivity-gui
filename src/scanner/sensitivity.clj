@@ -79,6 +79,20 @@
     {:offsets (get-offsets means)
      :sensitivities (get-sensitivities means)}))
 
+(defn config->string [offsets sensitivities]
+  (str
+   (join "\n"
+         [(str "[offsets] = "        (offset->string offsets))
+          (str "[sensitivity_x] = " (sensitivity->string
+                                     0
+                                     sensitivities))
+          (str "[sensitivity_y] = " (sensitivity->string
+                                     1
+                                     sensitivities))
+          (str "[sensitivity_z] = " (sensitivity->string
+                                     2
+                                     sensitivities))])))
+
 (defn -main
   "Takes a single argument, a folder that has the subfolders Xnegative,
   Xpositive, Ynegative, Ypositive, Znegative, and Zpositive.  Each subfolder
@@ -88,9 +102,4 @@
   [root-dir & args]
 
   (let [{:keys [offsets sensitivities]} (calculate root-dir)]
-    (prn "Offsets")
-    (prn (dataset-mean offsets))
-    (prn "Raw Offsets")
-    (prn offsets)
-    (prn "Sensitivities")
-    (prn sensitivities)))
+    (println (config->string offsets sensitivities))))

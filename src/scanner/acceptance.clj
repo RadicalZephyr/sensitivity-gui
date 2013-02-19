@@ -7,8 +7,7 @@
              [charts :as ich]])
   (:use [scanner.io :only [list-files
                            list-directories]]
-        [scanner.sensitivity :only [offset->string
-                                    sensitivity->string
+        [scanner.sensitivity :only [config->string
                                     validate-root-exists
                                     calculate
                                     directory->dataset]]
@@ -95,18 +94,7 @@
 (defn write-out-config [root-path offsets sensitivities]
   (let [config-file-path (str root-path "acceptance.cfg")]
     (spit config-file-path
-     (str
-      (join "\n"
-            [(str "[offsets] = "        (offset->string offsets))
-             (str "[sensitivity_x] = " (sensitivity->string
-                                        0
-                                        sensitivities))
-             (str "[sensitivity_y] = " (sensitivity->string
-                                        1
-                                        sensitivities))
-             (str "[sensitivity_z] = " (sensitivity->string
-                                        2
-                                        sensitivities))])))
+          (config->string offsets sensitivities))
     config-file-path))
 
 (defn dir->test-name
