@@ -9,7 +9,12 @@
  (rotation y none)
  (rotation z none))
 => ;; Code
-
+(process-test dataset {:start-time 1.2
+                       :duration 3.5
+                       :radius 19
+                       :x-rotation 10
+                       :y-rotation 0
+                       :z-rotation 0})
 => ;; Output
 {:x-translation {:pre-test {:RMS-error 2.6
                             :end-expected 0

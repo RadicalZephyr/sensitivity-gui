@@ -258,23 +258,6 @@
                       :test      (check-expectations test-ds efn)
                       :post-test (check-expectations post-ds post-efn)}}))))
 
-(defmacro rotation [axis & {:syms [degrees]
-                            :as args}]
-
-  (cond
-   (not= 'none args) (do
-                       'stuff)
-   :else 'none))
-
-(defmacro translation [axis & {:syms [inches]
-                               :as args}]
-  (cond
-   (not= 'none args) (do
-                       'stuff)
-   :else 'none))
-
-(defmacro deftest [name start-time duration & axes])
-
 (defn -main
   "Run the acceptance test.  Takes a single argument of a folder.
   This folder should contain the requisite scans for doing a
