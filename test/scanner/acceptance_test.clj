@@ -63,3 +63,22 @@ component"
       (provided
        (clojure.java.shell/sh anything anything :in anything)
        => {:out "0 1 1 1 2 2 2\n1 2 2 2 3 3 3"}))
+
+(fact "Split dataset should partition a dataset into three parts"
+      (split-dataset (ic/dataset [:timestamp :1 :2]
+                                 [[0 1 1]
+                                  [1 2 2]
+                                  [10 11 11]
+                                  [34 33 33]
+                                  [38 39 39]
+                                  [90 99 99]])
+                     ;; start-time duration
+                     9 26) => [(ic/dataset [:timestamp :1 :2]
+                                           [[0 1 1]
+                                            [1 2 2]])
+                               (ic/dataset [:timestamp :1 :2]
+                                           [[10 11 11]
+                                            [34 33 33]])
+                               (ic/dataset [:timestamp :1 :2]
+                                           [[38 39 39]
+                                            [90 99 99]])])
