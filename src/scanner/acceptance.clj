@@ -210,12 +210,40 @@
       (fn [ts] (* avg-vel (- ts
                              start-time))))))
 
-(defn check-expectations [dataset efn]
-  )
+(def column {:x-rotation :gyro-x
+             :y-rotation :gyro-y
+             :z-rotation :gyro-z
+             :x-translation :accel-x
+             :y-translation :accel-y
+             :z-translation :accel-z})
+
 (defn last-row [ds columns]
   (let [last-map (last (:rows (ic/sel ds :columns columns)))]
     (vec (map #(% last-map) columns))))
 
+(defn rms [efn coll]
+  (let [len (count coll)
+        sum-squares (reduce (fn [sum [ts actual]]
+                              (+ sum (ic/sq (- actual
+                                               (efn ts)))))
+                            0 coll)]
+    (ic/sqrt (/ sum-squares len))))
+
+(defn rms-dataset [ds efn column]
+  (-> (ic/$rollup (partial rms efn) [:timestamp column] [] ds)
+      ;; This is an ugly dirty hack to use rollup to return a single
+      ;; value.
+      :rows
+      first
+      :timestamp))
+
+(defn check-expectations [ds efn device-axis]
+  (let [[end-ts end-actual] (last-row ds
+                                      [:timestamp
+                                       (column device-axis)])]
+    {:RMS-error (rms-dataset ds efn (column device-axis))
+     :end-expected (efn end-ts)
+     :end-actual end-actual}))
 
 (defn process-test [dataset & {:keys [start-time duration
                                       radius axis-descriptions]}]
