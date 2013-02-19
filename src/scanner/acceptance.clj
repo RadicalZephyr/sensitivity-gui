@@ -213,22 +213,22 @@
              ~axis-symbol
              (expected-fn# ~'timestamp)]))))))
 
-(defmacro rotated [degrees duration start-time axis]
-  (gen-delta-function degrees
-                      (* duration 1000)
-                      (* start-time 1000)
-                      (str "gyro-" axis)))
+(defmacro rotation [axis {:syms [degrees duration start-time radius]
+                          :as args}]
 
-(defmacro translated [inches duration start-time axis]
-  (gen-delta-function inches
-                      (* duration 1000)
-                      (* start-time 1000)
-                      (str "acc-" axis)))
+  (cond
+   (not= 'none args) (do
+                       'stuff)
+   :else 'none))
 
-;; The current output of this can be visualized using something like:
-;; (ic/with-data cds
-;;   (ic/view (-> (ich/time-series-plot :timestamp :expected)
-;;                (ich/add-lines :timestamp :actual))))
+(defmacro translation [axis {:syms [inches duration start-time]
+                             :as args}]
+  (cond
+   (not= 'none args) (do
+                       'stuff)
+   :else 'none))
+
+
 (defn -main
   "Run the acceptance test.  Takes a single argument of a folder.
   This folder should contain the requisite scans for doing a
