@@ -195,14 +195,14 @@
         velocity (if (= 0 milliseconds)
                    0
                    (/ units milliseconds))]
-    `(fn [~'dataset]
-       (let [~'expected-fn (fn [~'timestamp]
-                             (* ~velocity (- ~'timestamp
+    `(fn [dataset#]
+       (let [expected-fn# (fn [timestamp#]
+                             (* ~velocity (- timestamp#
                                              ~time-offset-ms)))]
          (ic/dataset [:timestamp :actual :expected]
           (for [{:keys [~'timestamp ~axis-symbol]}
                 (:rows
-                 (ic/sel ~'dataset ;; Assumes :timestamp is the first
+                 (ic/sel dataset# ;; Assumes :timestamp is the first
                                    ;; value
                          :filter #(and (> (nth % 0) ~time-offset-ms)
                                        (< (nth % 0) (+ ~time-offset-ms
@@ -211,7 +211,7 @@
                                 ~(keyword device-axis)]))]
             [~'timestamp
              ~axis-symbol
-             (~'expected-fn ~'timestamp)]))))))
+             (expected-fn# ~'timestamp)]))))))
 
 (defmacro rotated [degrees duration start-time axis]
   (gen-delta-function degrees
