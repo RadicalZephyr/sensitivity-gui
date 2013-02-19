@@ -257,18 +257,16 @@
                                (find-test-cases root-path))
            ;; and test-executables
            exe (find-test-executables root-path)]
-       (let [errors (ic/$map absolute-error [:expected :actual]
-                             (generate-comparison
-                              (run-test-case exe config-path
-                                             (normalize-dataset dataset))))
+       (let [ds (run-test-case exe config-path
+                               (normalize-dataset dataset))
+             errors (ic/$map absolute-error [:expected :actual]
+                             (generate-comparison ds))
              rms (ic/sqrt (/ (ic/sum-of-squares errors)
                              (count errors)))]
-         ;; For each test produce a dataset of:
-           ;;  [:timestamp :actual :expected]
-           [(last (split test-name #"/"))
-            (get-version-from-exe exe)
-            rms
-            (last errors)])))
+         [(last (split test-name #"/"))
+          (get-version-from-exe exe)
+          rms
+          (last errors)])))
     (shutdown-agents)))
 
 ;; The most meaningful value is going to be absolute error.  It's
