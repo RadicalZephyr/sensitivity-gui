@@ -190,6 +190,8 @@
       abs-err
       (* 100 (/ abs-err expected)))))
 
+(defn process-test [test-dataset test-description])
+
 (defn gen-delta-function [units milliseconds time-offset-ms device-axis]
   (let [axis-symbol (symbol device-axis)
         velocity (if (= 0 milliseconds)
@@ -228,6 +230,7 @@
                        'stuff)
    :else 'none))
 
+(defmacro deftest [name start-time duration & axes])
 
 (defn -main
   "Run the acceptance test.  Takes a single argument of a folder.

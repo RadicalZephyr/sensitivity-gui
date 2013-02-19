@@ -1,6 +1,7 @@
 A test description should look something like this:
 
-    (test-case "test-name"
+    (deftest "test-name"
+      start-time duration
       (<per-axis specification of movement>)
       ...)
 with up to six spec's
@@ -8,9 +9,9 @@ with up to six spec's
 
 where a per-axis spec is:
 
-    (rotation distance duration start-time axis)
+    (rotation axis distance)
     or
-    (translation distance duration start-time axis)
+    (translation axis distance)
 
 Another need is to specify that an axis doesn't move.
 
@@ -21,3 +22,16 @@ Another possibility, I should be able to figure out how far a
 translation was, and in what direction/axis from the rotation
 specification.  Just calculate it in radians, and then specify the
 radius of rotation too.  (later...)
+
+
+Break apart the problem into what stays the same, no matter what the
+specifics of the test are, and what differs.  The differences need to
+be macros (or parameterized functions), and the same parts can be
+functions.
+
+Parts:
+- normalizing the dataset
+- splitting the dataset into three parts (pre, test, post)
+- checking the data set against the expected-fn (this needs to happen
+  for every section)
+- formatting the data structure of the results
