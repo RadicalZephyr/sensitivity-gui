@@ -49,9 +49,6 @@
                         :text (with-out-str
                                 (scanner.sensitivity/-main dir))))])))
 
-(defn save-datum [root]
-  )
-
 (defn call-with-to-root [fun]
   (fn [e]
     (fun (to-root e))))
@@ -63,16 +60,12 @@
         sensitivity-action (action :name "Open a sensitivity scan ..."
                                    :tip "Open a folder containing the six folders of a sensitivity calibration scan"
                                    :handler (call-with-to-root open-sensitivity))
-        save-datum-action (action :name "Save to datum ..."
-                                  :tip "(NOT IMPLEMENTED) Save current calibration to datum file"
-                                  :handler (call-with-to-root save-datum))
         exit-action (action :name "Exit"
                             :handler (fn [e]
                                        (.dispose (to-frame e))))]
     (menubar :items
              [(menu :text "File" :items [open-scan-action
                                          sensitivity-action
-                                         save-datum-action
                                          exit-action])])))
 
 (defn -main
