@@ -95,6 +95,14 @@ velocity, or zero"
                          [[1 2] [3 4] [5 6]])
                 [:1 :2]) => [5 6])
 
+(fact "rms should return the root-mean-squared error of an efn and a dataset"
+      (rms (fn [ts] ts)
+           [[0 0] [1 1] [2 2]]) => (exactly 0.0)
+      (rms (fn [ts] (inc ts))
+           [[0 0] [1 1] [2 2]]) => (exactly 1.0))
+
+
+
 (fact "Process test should return a map of results"
       (process-test ...dataset...
                     :start-time ...start-time...
