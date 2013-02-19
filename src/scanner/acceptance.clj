@@ -210,14 +210,21 @@
       (fn [ts] (* avg-vel (- ts
                              start-time))))))
 
-(defn process-test [dataset {:keys [start-time duration axis-descriptions]
-                                  :as test-description}]
+(defn check-expectations [dataset efn]
+  )
+
+(defn process-test [dataset & {:keys [start-time duration
+                                      radius axis-descriptions]}]
   (let [[pre-ds test-ds post-ds] (split-dataset dataset
                                                 start-time
                                                 duration)]
-    (for [[axis distance] axis-descriptions]
-      (let [efn (gen-efn duration distance)]
-        ))))
+    (for [[device-axis distance] axis-descriptions]
+      (let [efn (gen-efn start-time duration distance)
+            pre-efn (fn [ts] 0)
+            post-efn (fn [ts] (+ start-time duration))]
+        {device-axis {:pre-test  (check-expectations pre-ds  pre-efn)
+                      :test      (check-expectations test-ds efn)
+                      :post-test (check-expectations post-ds post-efn)}}))))
 
 (defn gen-delta-function [units milliseconds time-offset-ms device-axis]
   (let [axis-symbol (symbol device-axis)
