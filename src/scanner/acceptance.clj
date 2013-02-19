@@ -190,7 +190,24 @@
       abs-err
       (* 100 (/ abs-err expected)))))
 
-(defn process-test [test-dataset test-description])
+(defn split-dataset [dataset start-time duration]
+  (let [before-start #(< (nth % 0) start-time)
+        after-end #(> (nth % 0) (+ start-time
+                                   duration))
+        normalized-ds (normalize-dataset dataset)
+        pre-ds (ic/sel normalized-ds :filter before-start)
+        test-ds (ic/sel normalized-ds :filter #(and (not (before-start %))
+                                                    (not (after-end %))))
+        post-ds (ic/sel normalized-ds :filter after-end)]
+    [pre-ds
+     test-ds
+     post-ds]))
+
+(defn process-test [dataset {:keys [start-time duration]
+                                  :as test-description}]
+  (let [[pre-ds test-ds post-ds] (split-dataset dataset
+                                                start-time
+                                                duration)]))
 
 (defn gen-delta-function [units milliseconds time-offset-ms device-axis]
   (let [axis-symbol (symbol device-axis)
