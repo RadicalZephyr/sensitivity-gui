@@ -64,6 +64,13 @@ component"
        (clojure.java.shell/sh anything anything :in anything)
        => {:out "0 1 1 1 2 2 2\n1 2 2 2 3 3 3"}))
 
+(fact "gen-efn should return a function computing d(x) using average
+velocity, or zero"
+      ((gen-efn ...start-time... ...duration... 0) ...time...) => 0
+      ((gen-efn 1 10 10) 1) => 0
+      ((gen-efn 1 10 10) 6) => 5
+      ((gen-efn 1 10 10) 11) => 10)
+
 (fact "Split dataset should partition a dataset into three parts"
       (split-dataset (ic/dataset [:timestamp :1 :2]
                                  [[0 1 1]
