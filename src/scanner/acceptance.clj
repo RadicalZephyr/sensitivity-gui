@@ -245,8 +245,8 @@
      :end-expected (efn end-ts)
      :end-actual end-actual}))
 
-(defn process-test [dataset & {:keys [start-time duration
-                                      radius axis-descriptions]}]
+(defn process-test [dataset {:keys [start-time duration
+                                    radius axis-descriptions]}]
   (let [[pre-ds test-ds post-ds] (split-dataset dataset
                                                 start-time
                                                 duration)]
@@ -257,29 +257,6 @@
         {device-axis {:pre-test  (check-expectations pre-ds  pre-efn)
                       :test      (check-expectations test-ds efn)
                       :post-test (check-expectations post-ds post-efn)}}))))
-
-(defn gen-delta-function [units milliseconds time-offset-ms device-axis]
-  (let [axis-symbol (symbol device-axis)
-        velocity (if (= 0 milliseconds)
-                   0
-                   (/ units milliseconds))]
-    `(fn [dataset#]
-       (let [expected-fn# (fn [timestamp#]
-                             (* ~velocity (- timestamp#
-                                             ~time-offset-ms)))]
-         (ic/dataset [:timestamp :actual :expected]
-          (for [{:keys [~'timestamp ~axis-symbol]}
-                (:rows
-                 (ic/sel dataset# ;; Assumes :timestamp is the first
-                                   ;; value
-                         :filter #(and (> (nth % 0) ~time-offset-ms)
-                                       (< (nth % 0) (+ ~time-offset-ms
-                                                       ~milliseconds)))
-                         :cols [:timestamp
-                                ~(keyword device-axis)]))]
-            [~'timestamp
-             ~axis-symbol
-             (expected-fn# ~'timestamp)]))))))
 
 (defmacro rotation [axis & {:syms [degrees]
                             :as args}]
@@ -321,21 +298,16 @@
     ;; TODO: Produce output, in some format!
     (clojure.pprint/pprint
      (for [ ;; Iterate over test-datasets
-           [test-name generate-comparison dataset]
+           [test-name test-description dataset]
            (process-test-names root-path
                                (find-test-cases root-path))
            ;; and test-executables
            exe (find-test-executables root-path)]
        (let [ds (run-test-case exe config-path
-                               (normalize-dataset dataset))
-             errors (ic/$map absolute-error [:expected :actual]
-                             (generate-comparison ds))
-             rms (ic/sqrt (/ (ic/sum-of-squares errors)
-                             (count errors)))]
+                               (normalize-dataset dataset))]
          [(last (split test-name #"/"))
           (get-version-from-exe exe)
-          rms
-          (last errors)])))
+          (process-test ds test-description)])))
     (shutdown-agents)))
 
 ;; The most meaningful value is going to be absolute error.  It's
