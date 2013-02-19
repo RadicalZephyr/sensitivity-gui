@@ -137,12 +137,12 @@
                    (save-dataset dataset "-"
                                  :delim " "))))))
 
-(defn get-processing-function [test-case]
+(defn read-test-description [test-case]
   (binding [*ns* (find-ns 'scanner.acceptance)]
-   (try (load-file test-case)
-        (catch Exception e
-          (throw (Exception. (str "Error loading test description: "
-                                  test-case) e))))))
+    (try (load-file test-case)
+         (catch Exception e
+           (throw (Exception. (str "Error loading test description: "
+                                   test-case) e))))))
 
 (defn get-version-from-exe [exe]
   (let [path-string (.getCanonicalPath exe)
@@ -173,7 +173,7 @@
 
 (defn process-test-names [root-path test-cases]
   (map (comp (juxt identity
-                   get-processing-function
+                   read-test-description
                    test-name->dataset)
              (partial str root-path))
        test-cases))
