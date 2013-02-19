@@ -245,13 +245,21 @@
      :end-expected (efn end-ts)
      :end-actual end-actual}))
 
-(defn process-test [dataset {:keys [start-time duration radius
-                                    axis-descriptions]
+(defn get-axis-descriptions [test-description]
+  (vec (select-keys test-description [:x-rotation
+                                      :y-rotation
+                                      :z-rotation
+                                      :x-translation
+                                      :y-translation
+                                      :z-translation])))
+
+(defn process-test [dataset {:keys [start-time duration radius]
+                             :as test-description
                              :or {:radius 0}}]
   (let [[pre-ds test-ds post-ds] (split-dataset dataset
                                                 start-time
                                                 duration)]
-    (for [[device-axis distance] axis-descriptions]
+    (for [[device-axis distance] (get-axis-descriptions test-description)]
       (let [efn (gen-efn start-time duration distance)
             pre-efn (fn [ts] 0)
             post-efn (fn [ts] (+ start-time duration))]
@@ -293,10 +301,3 @@
           (get-version-from-exe exe)
           (process-test ds test-description)])))
     (shutdown-agents)))
-
-;; The most meaningful value is going to be absolute error.  It's
-;; defined for any set of points and not dependent on units.
-
-;; So if I take the absolute error, and juxtapose it against time,
-;; then I can find the slope between every two points in time, giving
-;; me the rate of change of the error.
