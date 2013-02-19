@@ -242,16 +242,16 @@
              ~axis-symbol
              (expected-fn# ~'timestamp)]))))))
 
-(defmacro rotation [axis {:syms [degrees duration start-time radius]
-                          :as args}]
+(defmacro rotation [axis & {:syms [degrees]
+                            :as args}]
 
   (cond
    (not= 'none args) (do
                        'stuff)
    :else 'none))
 
-(defmacro translation [axis {:syms [inches duration start-time]
-                             :as args}]
+(defmacro translation [axis & {:syms [inches]
+                               :as args}]
   (cond
    (not= 'none args) (do
                        'stuff)
