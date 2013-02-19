@@ -1,4 +1,4 @@
-(defproject scanner "0.1.0-SNAPSHOT"
+(defproject scanner "0.2.0-SNAPSHOT"
   :description "A library/gui for calculating accelerometer sensitivies"
   :url "https://github.com/ezephyr/sensitivity-gui"
   :license {:name "Eclipse Public License"
