@@ -101,7 +101,19 @@ velocity, or zero"
       (rms (fn [ts] (inc ts))
            [[0 0] [1 1] [2 2]]) => (exactly 1.0))
 
-
+(fact "Check-expectations returns a result set"
+      (check-expectations ...dataset... ...efn... ...dev-axis...) =>
+      (just {:RMS-error ...rms...
+             :end-expected ...expected...
+             :end-actual ...actual...})
+      (provided
+       (ic/dataset? ...dataset...) => true
+       (last-row ...dataset... [:timestamp
+                                ...axis...]) => [...end-ts...
+                                                 ...actual...]
+       (...efn... ...end-ts...) => ...expected...
+       (column ...dev-axis...) => ...axis...
+       (rms-dataset ...dataset... anything ...axis...) => ...rms...))
 
 (fact "Process test should return a map of results"
       (process-test ...dataset...
