@@ -40,26 +40,31 @@ Parts:
 Reformatting the data structure
 ---------------------------
 
-What I want to do, is take the nested hierarchy
+What I want to do, is take the nested hierarchy:
+
     ["test-name"
      "version"
-     ({:axis-behaviour {pre-results {:rms
-                                     :expected
-                                     :actual}
-                        results {:rms
-                                 :expected
-                                 :actual}
-                        post-results  {:rms
-                                       :expected
-                                       :actual}}})]
+     {:axis-behaviour {:pre-test {:rms value
+                                  :expected value
+                                  :actual value}}}]
+
+
 ==>
+
     ["test-name"
-     {:axis-behaviour {pre-results {:rms [["version" value]
-                                          ["version" value]...]
-                                    :expected [["version" value]
-                                               ["version" value]...]
-                                    :actual [["version" value]
-                                               ["version" value]...]}
+     {:axis-behaviour {:pre-test {:rms ["version" value]
+                                  :expected ["version" value]
+                                  :actual ["version" value]}}}]
+
+==>
+
+    ["test-name"
+     {:axis-behaviour {:pre-test {:rms [["version" value]
+                                        ["version" value]...]
+                                  :expected [["version" value]
+                                             ["version" value]...]
+                                  :actual [["version" value]
+                                           ["version" value]...]}
 
 
 First off, I have an extra seq in there somewhere, probably from a for
