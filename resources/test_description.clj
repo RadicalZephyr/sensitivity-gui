@@ -1,4 +1,4 @@
-(ns scanner.test_description)
+(ns scanner.test-description)
 
 
 (test-case
