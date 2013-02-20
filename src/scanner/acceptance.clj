@@ -213,9 +213,9 @@
 (def column {:x-rotation :gyro-x
              :y-rotation :gyro-y
              :z-rotation :gyro-z
-             :x-translation :accel-x
-             :y-translation :accel-y
-             :z-translation :accel-z})
+             :x-translation :acc-x
+             :y-translation :acc-y
+             :z-translation :acc-z})
 
 (defn last-row [ds columns]
   (let [last-map (last (:rows (ic/sel ds :columns columns)))]
