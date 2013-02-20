@@ -238,12 +238,13 @@
       :timestamp))
 
 (defn check-expectations [ds efn device-axis]
-  (let [[end-ts end-actual] (last-row ds
-                                      [:timestamp
-                                       (column device-axis)])]
-    {:RMS-error (rms-dataset ds efn (column device-axis))
-     :end-expected (efn end-ts)
-     :end-actual end-actual}))
+  (when (ic/dataset? ds)
+    (let [[end-ts end-actual] (last-row ds
+                                        [:timestamp
+                                         (column device-axis)])]
+      {:RMS-error (rms-dataset ds efn (column device-axis))
+       :end-expected (efn end-ts)
+       :end-actual end-actual})))
 
 (defn get-axis-descriptions [test-description]
   (vec (select-keys test-description [:x-rotation
