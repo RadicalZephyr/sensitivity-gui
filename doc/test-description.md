@@ -35,3 +35,33 @@ Parts:
 - checking the data set against the expected-fn (this needs to happen
   for every section)
 - formatting the data structure of the results
+
+
+Reformatting the data structure
+---------------------------
+
+What I want to do, is take the nested hierarchy
+    ["test-name"
+     "version"
+     ({:axis-behaviour {pre-results {:rms
+                                     :expected
+                                     :actual}
+                        results {:rms
+                                 :expected
+                                 :actual}
+                        post-results  {:rms
+                                       :expected
+                                       :actual}}})]
+==>
+    ["test-name"
+     {:axis-behaviour {pre-results {:rms [["version" value]
+                                          ["version" value]...]
+                                    :expected [["version" value]
+                                               ["version" value]...]
+                                    :actual [["version" value]
+                                               ["version" value]...]}
+
+
+First off, I have an extra seq in there somewhere, probably from a for
+loop that's unnecessary.
+
