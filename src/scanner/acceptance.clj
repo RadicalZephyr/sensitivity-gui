@@ -257,7 +257,9 @@
 (defn process-test [dataset {:keys [start-time duration radius]
                              :as test-description
                              :or {:radius 0}}]
-  (let [[pre-ds test-ds post-ds] (split-dataset dataset
+  (let [start-time (* 1000 start-time)
+        duration   (* 1000 duration)
+        [pre-ds test-ds post-ds] (split-dataset dataset
                                                 start-time
                                                 duration)]
     (for [[device-axis distance] (get-axis-descriptions test-description)]
