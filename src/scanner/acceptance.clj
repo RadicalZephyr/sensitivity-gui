@@ -1,6 +1,7 @@
 (ns scanner.acceptance
   (:require clojure.set
             clojure.pprint
+            [clojure.walk :as cw]
             [incanter
              [core :as ic]
              [io :as ioc]
@@ -221,6 +222,34 @@
   (let [last-map (last (:rows (ic/sel ds :columns columns)))]
     (vec (map #(% last-map) columns))))
 
+(defn conj-colls [[f & r]]
+  (if (not-every? vector? f)
+    (apply conj [] f r)
+    (apply conj f r)))
+
+(defn merge-map-of-maps [& colls]
+  (cond (every? vector? colls) (conj-colls colls)
+        (every? map? colls) (apply merge-with merge-map-of-maps colls)))
+
+(defn merge-version-results [report]
+  (map (comp (partial apply merge-map-of-maps)
+             second)
+       report))
+
+(defn group-by-removing [coll]
+  (map (fn [[test results]]
+         [test (map second results)])
+       (group-by first coll)))
+
+(defn push-down-versions [coll]
+  (cw/walk (fn [[test version results]]
+             [test (cw/postwalk #(if (number? %)
+                                   [version %]
+                                   %)
+                                results)])
+           group-by-removing
+           coll))
+
 (defn rms [efn coll]
   (let [len (count coll)
         sum-squares (reduce (fn [sum [ts actual]]
@@ -300,15 +329,17 @@
     ;; These are the "actual" results
     ;; TODO: Produce output, in some format!
     (clojure.pprint/pprint
-     (for [ ;; Iterate over test-datasets
-           [test-name test-description dataset]
-           (process-test-names root-path
-                               (find-test-cases root-path))
-           ;; and test-executables
-           exe (find-test-executables root-path)]
-       (let [ds (run-test-case exe config-path
-                               (normalize-dataset dataset))]
-         [(last (split test-name #"/"))
-          (get-version-from-exe exe)
-          (process-test ds test-description)])))
+     (merge-version-results
+      (push-down-versions
+       (for [ ;; Iterate over test-datasets
+             [test-name test-description dataset]
+             (process-test-names root-path
+                                 (find-test-cases root-path))
+             ;; and test-executables
+             exe (find-test-executables root-path)]
+         (let [ds (run-test-case exe config-path
+                                 (normalize-dataset dataset))]
+           [(last (split test-name #"/"))
+            (get-version-from-exe exe)
+            (process-test ds test-description)])))))
     (shutdown-agents)))
