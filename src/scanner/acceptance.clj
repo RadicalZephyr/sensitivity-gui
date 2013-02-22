@@ -273,16 +273,23 @@
                                         [:timestamp
                                          (column device-axis)])]
       {:RMS-error (rms-dataset ds efn (column device-axis))
-       :end-expected (efn end-ts)
-       :end-actual end-actual})))
+       :ABS-error (ic/abs (- end-actual (efn end-ts)))
+       :expected  (efn end-ts)})))
 
 (defn get-axis-descriptions [test-description]
-  (vec (select-keys test-description [:x-rotation
-                                      :y-rotation
-                                      :z-rotation
-                                      :x-translation
-                                      :y-translation
-                                      :z-translation])))
+  (vec (select-keys (merge {:x-rotation 0
+                            :y-rotation 0
+                            :z-rotation 0
+                            :x-translation 0
+                            :y-translation 0
+                            :z-translation 0}
+                           test-description)
+                    [:x-rotation
+                     :y-rotation
+                     :z-rotation
+                     :x-translation
+                     :y-translation
+                     :z-translation])))
 
 (defn process-test [dataset {:keys [start-time duration radius]
                              :as test-description
