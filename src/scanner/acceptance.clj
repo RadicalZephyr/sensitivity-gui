@@ -232,8 +232,9 @@
         (every? map? colls) (apply merge-with merge-map-of-maps colls)))
 
 (defn merge-version-results [report]
-  (map (comp (partial apply merge-map-of-maps)
-             second)
+  (map (fn [[test results]]
+         [test (apply merge-map-of-maps
+                      results)])
        report))
 
 (defn group-by-removing [coll]
