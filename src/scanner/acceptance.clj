@@ -291,7 +291,7 @@
         [pre-ds test-ds post-ds] (split-dataset dataset
                                                 start-time
                                                 duration)]
-    (merge
+    (apply merge
      (for [[device-axis distance] (get-axis-descriptions test-description)]
        (let [efn (gen-efn start-time duration distance)
              pre-efn (fn [ts] 0)
@@ -304,8 +304,7 @@
                                                       device-axis)
                        :post-test (check-expectations post-ds
                                                       post-efn
-                                                      device-axis)}}))))
-  )
+                                                      device-axis)}})))))
 
 (defn -main
   "Run the acceptance test.  Takes a single argument of a folder.
