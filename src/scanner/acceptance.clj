@@ -304,21 +304,20 @@
         [pre-ds ds post-ds] (split-dataset dataset
                                            start-time
                                            duration)]
-    (concat
-     (for [[device-axis distance] (get-axis-descriptions test-description)]
-       (let [efn (gen-efn start-time duration distance)
-             pre-efn (fn [ts] 0)
-             post-efn (fn [ts] (efn (+ start-time duration)))]
-         (mapcat (fn [[ds efn label]]
-                   (check-expectations test-name
-                                       version
-                                       ds
-                                       efn
-                                       label
-                                       device-axis))
-              (zipvec [pre-ds  ds  post-ds ]
-                      [pre-efn efn post-efn]
-                      ["pre" "test" "post"])))))))
+    (for [[device-axis distance] (get-axis-descriptions test-description)]
+      (let [efn (gen-efn start-time duration distance)
+            pre-efn (fn [ts] 0)
+            post-efn (fn [ts] (efn (+ start-time duration)))]
+        (map (fn [[ds efn label]]
+               (check-expectations test-name
+                                   version
+                                   ds
+                                   efn
+                                   label
+                                   device-axis))
+             (zipvec [pre-ds  ds  post-ds ]
+                     [pre-efn efn post-efn]
+                     ["pre" "test" "post"]))))))
 
 (defn -main
   "Run the acceptance test.  Takes a single argument of a folder.
@@ -341,17 +340,21 @@
     ;; Run the combinations of version X test-case.
     ;; These are the "actual" results
     ;; TODO: Produce output, in some format!
-    (clojure.pprint/pprint
-     (concat
-      (for [ ;; Iterate over test-datasets
-            [test-name test-description dataset]
-            (process-test-names root-path
-                                (find-test-cases root-path))
-            ;; and test-executables
-            exe (find-test-executables root-path)]
-        (let [ds (run-test-case exe config-path
-                                (normalize-dataset dataset))
-              test-name (last (split test-name #"/"))
-              version (get-version-from-exe exe)]
-          (process-test test-name version ds test-description)))))
+    (save-dataset
+     (ic/dataset
+      [:test :version :device-axis :portion :metric :value]
+      (partition 6
+                 (flatten
+                  (for [ ;; Iterate over test-datasets
+                        [test-name test-description dataset]
+                        (process-test-names root-path
+                                            (find-test-cases root-path))
+                        ;; and test-executables
+                        exe (find-test-executables root-path)]
+                    (let [ds (run-test-case exe config-path
+                                            (normalize-dataset dataset))
+                          test-name (last (split test-name #"/"))
+                          version (get-version-from-exe exe)]
+                      (process-test test-name version ds test-description))))))
+     "-")
     (shutdown-agents)))
