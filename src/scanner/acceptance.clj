@@ -267,14 +267,16 @@
       first
       :timestamp))
 
-(defn check-expectations [ds efn device-axis]
+(defn check-expectations [test-name version ds efn label device-axis]
   (when (ic/dataset? ds)
     (let [[end-ts end-actual] (last-row ds
                                         [:timestamp
                                          (column device-axis)])]
-      {:RMS-error (rms-dataset ds efn (column device-axis))
-       :ABS-error (ic/abs (- end-actual (efn end-ts)))
-       :expected  (efn end-ts)})))
+      (map (partial conj [test-name version (name device-axis) label])
+           ["RMS" "ABS" "EXP"]
+           [(rms-dataset ds efn (column device-axis))
+            (ic/abs (- end-actual (efn end-ts)))
+            (efn end-ts)]))))
 
 (defn get-axis-descriptions [test-description]
   (vec (select-keys (merge {:x-rotation 0
@@ -291,28 +293,32 @@
                      :y-translation
                      :z-translation])))
 
-(defn process-test [dataset {:keys [start-time duration radius]
-                             :as test-description
-                             :or {:radius 0}}]
+(defn zipvec [& colls]
+  (apply map vector colls))
+
+(defn process-test [test-name version dataset
+                    {:keys [start-time duration radius]
+                     :as test-description}]
   (let [start-time (* 1000 start-time)
         duration   (* 1000 duration)
-        [pre-ds test-ds post-ds] (split-dataset dataset
-                                                start-time
-                                                duration)]
-    (apply merge
+        [pre-ds ds post-ds] (split-dataset dataset
+                                           start-time
+                                           duration)]
+    (concat
      (for [[device-axis distance] (get-axis-descriptions test-description)]
        (let [efn (gen-efn start-time duration distance)
              pre-efn (fn [ts] 0)
              post-efn (fn [ts] (efn (+ start-time duration)))]
-         {device-axis {:pre-test  (check-expectations pre-ds
-                                                      pre-efn
-                                                      device-axis)
-                       :test      (check-expectations test-ds
-                                                      efn
-                                                      device-axis)
-                       :post-test (check-expectations post-ds
-                                                      post-efn
-                                                      device-axis)}})))))
+         (mapcat (fn [[ds efn label]]
+                   (check-expectations test-name
+                                       version
+                                       ds
+                                       efn
+                                       label
+                                       device-axis))
+              (zipvec [pre-ds  ds  post-ds ]
+                      [pre-efn efn post-efn]
+                      ["pre" "test" "post"])))))))
 
 (defn -main
   "Run the acceptance test.  Takes a single argument of a folder.
@@ -336,17 +342,16 @@
     ;; These are the "actual" results
     ;; TODO: Produce output, in some format!
     (clojure.pprint/pprint
-     (merge-version-results
-      (push-down-versions
-       (for [ ;; Iterate over test-datasets
-             [test-name test-description dataset]
-             (process-test-names root-path
-                                 (find-test-cases root-path))
-             ;; and test-executables
-             exe (find-test-executables root-path)]
-         (let [ds (run-test-case exe config-path
-                                 (normalize-dataset dataset))]
-           [(last (split test-name #"/"))
-            (get-version-from-exe exe)
-            (process-test ds test-description)])))))
+     (concat
+      (for [ ;; Iterate over test-datasets
+            [test-name test-description dataset]
+            (process-test-names root-path
+                                (find-test-cases root-path))
+            ;; and test-executables
+            exe (find-test-executables root-path)]
+        (let [ds (run-test-case exe config-path
+                                (normalize-dataset dataset))
+              test-name (last (split test-name #"/"))
+              version (get-version-from-exe exe)]
+          (process-test test-name version ds test-description)))))
     (shutdown-agents)))
