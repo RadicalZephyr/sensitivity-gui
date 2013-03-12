@@ -273,10 +273,11 @@
                                         [:timestamp
                                          (column device-axis)])]
       (map (partial conj [test-name version (name device-axis) label])
-           ["RMS" "ABS" "EXP"]
+           ["RMS" "ABS" "EXP" "ACT"]
            [(rms-dataset ds efn (column device-axis))
             (ic/abs (- end-actual (efn end-ts)))
-            (efn end-ts)]))))
+            (efn end-ts)
+            end-actual]))))
 
 (defn get-axis-descriptions [test-description]
   (vec (select-keys (merge {:x-rotation 0
