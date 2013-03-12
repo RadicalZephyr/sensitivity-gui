@@ -335,17 +335,15 @@
   [root-dir]
   (let [root-path     (validate-root-exists root-dir)
         {:keys [offsets sensitivities]} (calculate root-dir)
+        ;; Generate a config for this test
         config-path (write-out-config root-path offsets sensitivities)]
-    ;; Generate a config for this test
 
-    ;; Run the combinations of version X test-case.
-    ;; These are the "actual" results
-    ;; TODO: Produce output, in some format!
     (save-dataset
      (ic/dataset
       [:test :version :device-axis :portion :metric :value]
       (partition 6
                  (flatten
+                  ;; Run the combinations of version X test-case.
                   (for [ ;; Iterate over test-datasets
                         [test-name test-description dataset]
                         (process-test-names root-path
