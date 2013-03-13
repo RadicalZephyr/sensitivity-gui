@@ -25,7 +25,7 @@
   (let [timestamp (.getInt byte-buffer)
         accel (repeatedly 3 #(.getShort byte-buffer))
         gyro  (repeatedly 3 #(.getShort byte-buffer))]
-    (concat [timestamp] accel gyro)))
+    (concat [timestamp] gyro accel)))
 
 (defn- read-data [byte-buffer]
   (let [magic-header (.getInt byte-buffer)

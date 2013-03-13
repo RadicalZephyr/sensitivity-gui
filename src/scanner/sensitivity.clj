@@ -46,7 +46,7 @@
   ([root-dir filename]
      (directory->dataset (str root-dir filename)))
   ([directory]
-     (dataset [:timestamp :acc-x :acc-y :acc-z :gyro-x :gyro-y :gyro-z]
+     (dataset [:timestamp :gyro-x :gyro-y :gyro-z :acc-x :acc-y :acc-z]
               (read-data-from-directory directory))))
 
 (defn- root-directory->datasets
