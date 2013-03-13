@@ -131,7 +131,7 @@
 
 (defn run-test-case [exe config-file dataset]
   (string->dataset
-   [:timestamp :acc-x :acc-y :acc-z :gyro-x :gyro-y :gyro-z]
+   [:timestamp :gyro-x :gyro-y :gyro-z :acc-x :acc-y :acc-z]
    (:out (sh (.getCanonicalPath exe)
              config-file
              :in (with-out-str
