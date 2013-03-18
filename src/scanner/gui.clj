@@ -7,6 +7,21 @@
        [scanner.sensitivity :only [normalize-dataset
                                    directory->dataset]]))
 
+
+;;; A neat way to leverage polymorphism and simplify this a bit would
+;;; be to define a protocol for writing to seesaw gui and to a file.
+;;; Then, have an atom that contains the clojure representation of the
+;;; "currently displayed" object, and add-watch to it to display it to
+;;; the screen.  Then, the menu functions can just call set! on the
+;;; atom with the appropriate namespace function.
+
+
+(def current-data-atom (atom {}))
+
+(defprotocol DisplayAndSave
+  (render [data] "Render the given data to a seesaw as-widget context")
+  (save [data filename] "Write the given data to a text file"))
+
 (defn- choose-absolute-dir-path
   "Open a dialog to choose a directory.  Returns the absolute path
   with a slash appended."
@@ -98,3 +113,14 @@
               :content (main-widget)
               :size [640 :by 480])
        show!)))
+
+(defn start-dev []
+  (use 'clojure.repl
+       'clojure.pprint
+       'seesaw.dev)
+  (native!))
+
+(def f)
+
+(defn display [content]
+  (config! f :content content))
