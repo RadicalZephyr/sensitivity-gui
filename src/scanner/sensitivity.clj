@@ -4,31 +4,46 @@
         [clojure.java.io :only [file]]
         [scanner.io  :only [read-data-from-directory]]))
 
-(def structure [{:neg "Xnegative.d" :pos "Xpositive.d"}
-                {:neg "Ynegative.d" :pos "Ypositive.d"}
-                {:neg "Znegative.d" :pos "Zpositive.d"}])
+(def ^:const DEFAULT-STRUCTURE
+  [{:neg "Xnegative.d" :pos "Xpositive.d"}
+   {:neg "Ynegative.d" :pos "Ypositive.d"}
+   {:neg "Znegative.d" :pos "Zpositive.d"}])
 
-(defn- mean-2d [col]
+(defn- mean-2d
+  "Helper function to do a mean over a 2d dataset."
+  [col]
   (map /
        (reduce #(map + %1 %2) col)
        (repeat (count col))))
 
-(defn- dataset-mean [dataset]
+(defn- dataset-mean
+  "Collapse a dataset into the mean of the accel data."
+  [dataset]
   (let [cols [:acc-x :acc-y :acc-z]]
     ($rollup mean-2d cols [] dataset)))
 
-(defn- num-rows [dataset]
+(defn- num-rows
+  "Return the number of rows in a dataset."
+  [dataset]
   (count (to-list dataset)))
 
-(defn- do-calculation [func datasets]
-  (map #(div (func (to-matrix (:neg %))
-                   (to-matrix (:pos %)))
+(defn- do-calculation
+  "Apply a function of two args over the dataset structure.  The two
+  arguments will be the negative and positive datasets for each axis.
+  The result of this function should be a dataset.  Returns that
+  result divided by two."
+  [f datasets]
+  (map #(div (f (to-matrix (:neg %))
+                (to-matrix (:pos %)))
              2)
        datasets))
 
-(defn- iterate-structure [func structure]
-  (map #(identity {:neg (func (:neg %))
-                   :pos (func (:pos %))})
+(defn- iterate-structure
+  "Walk the structure, applying f to each dataset and using the result
+  in it's place."
+  [f structure]
+  (map #(identity {:neg (f (:neg %))
+                   :pos (f (:pos %))})
        structure))
 
 (defn- get-offsets [mean-datasets]
@@ -43,15 +58,20 @@
   (iterate-structure dataset-mean datasets))
 
 (defn directory->dataset
-  ([root-dir filename]
-     (directory->dataset (str root-dir filename)))
+  "Turn a directory into a dataset.  For the arity-2 version, root-dir
+  should have a trailing slash."
   ([directory]
      (dataset [:timestamp :gyro-x :gyro-y :gyro-z :acc-x :acc-y :acc-z]
-              (read-data-from-directory directory))))
+              (read-data-from-directory directory)))
+  ([root-dir dir-name]
+     (directory->dataset (str root-dir dir-name))))
 
 (defn- root-directory->datasets
+  "Create a structure of datasets located at root-path.  The
+  single-arity version is a convenience method for using the default
+  structure and file-names."
   ([root-path]
-     (root-directory->datasets root-path structure))
+     (root-directory->datasets root-path DEFAULT-STRUCTURE))
   ([root-path dir-strc]
      (iterate-structure
       (partial directory->dataset root-path)
@@ -71,14 +91,6 @@
 (defn sensitivity->string [row sensitivities]
   (join " " (sel sensitivities :rows row)))
 
-(defn calculate [root-dir]
-  (let [root-path (validate-root-exists root-dir)
-        datasets (root-directory->datasets root-path)
-        means    (iterate-structure dataset-mean
-                                    datasets)]
-    {:offsets (get-offsets means)
-     :sensitivities (get-sensitivities means)}))
-
 (defn config->string [offsets sensitivities]
   (str
    (join "\n"
@@ -93,12 +105,22 @@
                                      2
                                      sensitivities))])))
 
+(defn calculate
+  "From the root-dir, calculate the offsets and sensitivities."
+  [root-dir]
+  (let [root-path (validate-root-exists root-dir)
+        datasets (root-directory->datasets root-path)
+        means    (iterate-structure dataset-mean
+                                    datasets)]
+    {:offsets (get-offsets means)
+     :sensitivities (get-sensitivities means)}))
+
 (defn -main
   "Takes a single argument, a folder that has the subfolders Xnegative,
-  Xpositive, Ynegative, Ypositive, Znegative, and Zpositive.  Each subfolder
-  should contain a series of Provel .pbmp files named sequentially (i.e. the
-  output of a scan).  Will print out the offsets and sensitivities of the
-  scanner."
+  Xpositive, Ynegative, Ypositive, Znegative, and Zpositive.
+  Each subfolder should contain a series of Provel .pbmp files named
+  sequentially (i.e. the output of a scan).
+  Will print out the offsets and sensitivities of the scanner."
   [root-dir & args]
 
   (let [{:keys [offsets sensitivities]} (calculate root-dir)]
