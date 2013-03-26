@@ -28,22 +28,29 @@
          java.nio.channels.FileChannel$MapMode/READ_ONLY offset size)
    ByteOrder/LITTLE_ENDIAN))
 
+(defn- do-repeatedly [n f]
+  (doall
+   (repeatedly n f)))
+
 (defn- read-sensor-entry
   "Read a single sample of sensor data."
   [byte-buffer]
   (let [timestamp (.getInt byte-buffer)
-        accel (repeatedly 3 #(.getShort byte-buffer))
-        gyro  (repeatedly 3 #(.getShort byte-buffer))]
-    (concat [timestamp] gyro accel)))
+        accel (do-repeatedly 3 #(.getShort byte-buffer))
+        gyro  (do-repeatedly 3 #(.getShort byte-buffer))
+        mag   (do-repeatedly 3 #(.getShort byte-buffer))]
+    ;; Read the Temp and Padding
+    (do-repeatedly 2 #(.get byte-buffer))
+    (concat [timestamp] gyro accel mag)))
 
 (defn- read-data
   "Read all of the sensor data available from a byte-buffer."
   [byte-buffer]
   (let [magic-header (.getInt byte-buffer)
-        hdrs (doall (repeatedly 4  #(.getInt byte-buffer)))
+        hdrs (do-repeatedly 4  #(.getInt byte-buffer))
         sensor-length (.get byte-buffer)]
     (when (= magic-header FW-MAGIC-HEADER)
-      (repeatedly sensor-length #(read-sensor-entry byte-buffer)))))
+      (do-repeatedly sensor-length #(read-sensor-entry byte-buffer)))))
 
 (defn list-files
   "Get a sorted sequence of all the files in a directory."
