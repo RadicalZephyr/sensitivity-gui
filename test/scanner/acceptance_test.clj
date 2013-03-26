@@ -36,28 +36,11 @@ component"
        (get-version-from-exe
         (io/file "some/extra/stuff/v0.1.0/nothing")) => "v0.1.0")
 
-;; (fact "Expectation macros return functions"
-;;       (rotated 0 0 0 x) => fn?
-;;       (rotated 10 1 1 x) => fn?
-;;       (translated 0 0 0 x) => fn?
-;;       (translated 10 1 1 x) => fn?)
-
-;; (fact "gen-delta-function returns a function that can iterate over datasets"
-;;       (let [delta-function (rotated 0 0 0 x)
-;;             ds (ic/dataset [:timestamp :gyro-x]
-;;                            [[1 10]
-;;                             [2 20]
-;;                             [3 30]])]
-;;         (delta-function ds) => (ic/dataset [:timestamp :actual :expected]
-;;                                            [[1 10 0]
-;;                                             [2 20 0]
-;;                                             [3 30 0]])))
-
 (fact "Run test case should return a dataset or nil"
       (run-test-case (io/file "exe") ...cfg... ...dataset...)
         => (ic/dataset [:timestamp
-                        :acc-x :acc-y :acc-z
-                        :gyro-x :gyro-y :gyro-z]
+                        :gyro-x :gyro-y :gyro-z
+                        :acc-x :acc-y :acc-z]
                        [[0 1 1 1 2 2 2]
                         [1 2 2 2 3 3 3]])
       (provided
@@ -100,35 +83,3 @@ velocity, or zero"
            [[0 0] [1 1] [2 2]]) => (exactly 0.0)
       (rms (fn [ts] (inc ts))
            [[0 0] [1 1] [2 2]]) => (exactly 1.0))
-
-(fact "Check-expectations returns a result set"
-      (check-expectations ...dataset... ...efn... ...dev-axis...) =>
-      (just {:RMS-error ...rms...
-             :end-expected ...expected...
-             :end-actual ...actual...})
-      (provided
-       (ic/dataset? ...dataset...) => true
-       (last-row ...dataset... [:timestamp
-                                ...axis...]) => [...end-ts...
-                                                 ...actual...]
-       (...efn... ...end-ts...) => ...expected...
-       (column ...dev-axis...) => ...axis...
-       (rms-dataset ...dataset... anything ...axis...) => ...rms...))
-
-(fact "Process test should return a map of results"
-      (process-test ...dataset...
-                    { :start-time 1
-                     :duration 2
-                     :radius ...radius...
-                     :x-rotation 0}) =>
-       (just {:x-rotation {:pre-test ...results...
-                           :test ...results...
-                           :post-test ...results...}})
-       (provided
-        (split-dataset ...dataset...
-                       1000
-                       2000) => [...pre-ds...
-                                           ...ds...
-                                           ...post-ds...]
-        (check-expectations anything anything anything) => ...results...))
-
