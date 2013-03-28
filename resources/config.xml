@@ -1,9 +1,9 @@
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>../target/scanner-0.2.0-standalone.jar</jar>
-  <outfile>../target/Accel Calibration-new.exe</outfile>
-  <errTitle>Accel Calibration</errTitle>
+  <jar>../target/scanner-0.4.0-SNAPSHOT-standalone.jar</jar>
+  <outfile>../target/Accel Calibration-mag.exe</outfile>
+  <errTitle>Calibration Utility</errTitle>
   <cmdLine></cmdLine>
   <chdir></chdir>
   <priority>normal</priority>
