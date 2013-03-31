@@ -12,7 +12,7 @@
         [scanner.sensitivity :only [config->string
                                     validate-root-exists
                                     has-calibration-scans
-                                    calculate
+                                    get-calibration
                                     directory->dataset]]
         [clojure.java.io :only [file]]
         [clojure.string :only [join
@@ -292,7 +292,7 @@
 (defn setup-test [root-path target-path]
   (when (has-calibration-scans root-path)
    (let [ ;; Generate a config for this test
-         {:keys [offsets sensitivities]} (calculate root-path)
+         {:keys [offsets sensitivities]} (get-calibration root-path)
          ;; Should be able to specify the filename for the config
          ;; Use a UUID for the filename?
          config-path (write-out-config root-path offsets sensitivities)]

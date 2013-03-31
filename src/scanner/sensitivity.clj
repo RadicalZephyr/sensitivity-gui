@@ -116,7 +116,7 @@
                                      2
                                      sensitivities))])))
 
-(defn calculate
+(defn get-calibration
   "From the root-dir, calculate the offsets and sensitivities."
   [root-dir]
   (let [root-path (validate-root-exists root-dir)
@@ -134,5 +134,5 @@
   Will print out the offsets and sensitivities of the scanner."
   [root-dir & args]
 
-  (let [{:keys [offsets sensitivities]} (calculate root-dir)]
+  (let [{:keys [offsets sensitivities]} (get-calibration root-dir)]
     (println (config->string offsets sensitivities))))
