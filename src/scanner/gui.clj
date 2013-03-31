@@ -1,8 +1,7 @@
 (ns scanner.gui
   (:gen-class)
   (use [scanner.io :only [save-dataset]]
-       [scanner.sensitivity :only [calculate
-                                   directory->dataset]]
+       [scanner.sensitivity :only [directory->dataset]]
        seesaw.core
        [seesaw.chooser :only [choose-file]]))
 
