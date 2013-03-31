@@ -292,8 +292,20 @@
 (defn uuid []
   (str (java.util.UUID/randomUUID)))
 
+(defn dir-exists
+  "Enforce that a path exists and is a directory.  If it doesn't
+  exist, create it.  Return false if the path exists but is already a
+  file."
+  [path]
+  (let [f (file path)]
+    (or (and (.exists f)
+             (.isDirectory f))
+        (and (not (.exists f))
+             (.mkdir f)))))
+
 (defn setup-test [root-path target-path]
-  (when (has-calibration-scans root-path)
+  (when (and (has-calibration-scans root-path)
+             (dir-exists target-path))
    (let [ ;; Generate a config for this test
          {:keys [offsets sensitivities]} (get-calibration root-path)
          config-path (write-out-config target-path
