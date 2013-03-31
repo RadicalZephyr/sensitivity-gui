@@ -302,15 +302,16 @@
      (for [test-name (find-test-cases root-path)]
        ;; find-test-cases already validates that a description file
        ;; and PBMP directory both exist
-
-       ;; Extract PBMP files into dataset
-
-       ;; Write dataset to csv file (in target)
-
-       ;; Read test description, add config path to it.
-       ;; Then write description to target
-       (do)
-       ))))
+       (let [full-path (str root-path test-name)
+             description (read-test-description full-path)
+             dataset (test-name->dataset full-path)]
+         ;; Write dataset as csv
+         (save-dataset dataset
+                       (str target-path test-name ".csv"))
+         ;; Write description with config-file added
+         (spit (str target-path test-name)
+               (assoc description
+                 :config-file config-path)))))))
 
 ;; (defn -main
 ;;   "Run the acceptance test.  Takes a single argument of a folder.
