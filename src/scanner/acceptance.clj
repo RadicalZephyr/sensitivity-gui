@@ -11,6 +11,7 @@
                            save-dataset]]
         [scanner.sensitivity :only [config->string
                                     validate-root-exists
+                                    has-calibration-scans
                                     calculate
                                     directory->dataset]]
         [clojure.java.io :only [file]]
@@ -288,42 +289,63 @@
               [ds efn "test"]
               [post-ds post-efn "post"]])))))
 
-(defn -main
-  "Run the acceptance test.  Takes a single argument of a folder.
-  This folder should contain the requisite scans for doing a
-  sensitivity calibration and any number of identically named
-  directory-file pairs of the form \"<file-name>\" and
-  \"<file-name>.d\" .
+(declare has-calibration-scans)
 
-  Each directory should contain an image set for a single scan.  The
-  file should contain the expected outputs of the agman when run
-  against that scan.
+(defn setup-test [root-path target-path]
+  (when (has-calibration-scans root-path)
+   (let [ ;; Generate a config for this test
+         {:keys [offsets sensitivities]} (calculate root-path)
+         ;; Should be able to specify the filename for the config
+         ;; Use a UUID for the filename?
+         config-path (write-out-config root-path offsets sensitivities)]
+     (for [test-name (find-test-cases root-path)]
+       ;; find-test-cases already validates that a description file
+       ;; and PBMP directory both exist
 
-  The file acceptance.cfg will be re-created every time this runs."
-  [root-dir]
-  (let [root-path     (validate-root-exists root-dir)
-        {:keys [offsets sensitivities]} (calculate root-dir)
-        ;; Generate a config for this test
-        config-path (write-out-config root-path offsets sensitivities)]
+       ;; Extract PBMP files into dataset
 
-    (save-dataset
-     (ic/dataset
-      [:test :version :device-axis :portion :metric :value]
-      ;; Reorganize into dataset format (seq of seqs)
-      (partition 6
-                 (flatten
-                  ;; Run the combinations of version X test-case.
-                  (for [ ;; Iterate over test-datasets
-                        [test-name test-description dataset]
-                        (process-test-names root-path
-                                            (find-test-cases root-path))
-                        ;; and test-executables
-                        exe (find-test-executables root-path)]
-                    (let [ds (run-test-case exe config-path
-                                            (normalize-dataset dataset))
-                          test-name (last (split test-name #"/"))
-                          version (get-version-from-exe exe)]
-                      (process-test test-name version ds test-description))))))
-     "-")
-    ;; clojure.java.shell uses futures. Make sure we shut them down.
-    (shutdown-agents)))
+       ;; Write dataset to csv file (in target)
+
+       ;; Read test description, add config path to it.
+       ;; Then write description to target
+       (do)
+       ))))
+
+;; (defn -main
+;;   "Run the acceptance test.  Takes a single argument of a folder.
+;;   This folder should contain the requisite scans for doing a
+;;   sensitivity calibration and any number of identically named
+;;   directory-file pairs of the form \"<file-name>\" and
+;;   \"<file-name>.d\" .
+
+;;   Each directory should contain an image set for a single scan.  The
+;;   file should contain the expected outputs of the agman when run
+;;   against that scan.
+
+;;   The file acceptance.cfg will be re-created every time this runs."
+;;   [root-dir]
+;;   (let [root-path     (validate-root-exists root-dir)
+;;         {:keys [offsets sensitivities]} (calculate root-dir)
+;;         ;; Generate a config for this test
+;;         config-path (write-out-config root-path offsets sensitivities)]
+
+;;     (save-dataset
+;;      (ic/dataset
+;;       [:test :version :device-axis :portion :metric :value]
+;;       ;; Reorganize into dataset format (seq of seqs)
+;;       (partition 6
+;;                  (flatten
+;;                   ;; Run the combinations of version X test-case.
+;;                   (for [ ;; Iterate over test-datasets
+
+
+;;                         ;; and test-executables
+;;                         exe (find-test-executables root-path)]
+;;                     (let [ds (run-test-case exe config-path
+;;                                             (normalize-dataset dataset))
+;;                           test-name (last (split test-name #"/"))
+;;                           version (get-version-from-exe exe)]
+;;                       (process-test test-name version ds test-description))))))
+;;      "-")
+;;     ;; clojure.java.shell uses futures. Make sure we shut them down.
+;;     (shutdown-agents)))
