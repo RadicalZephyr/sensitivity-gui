@@ -29,8 +29,8 @@
 
 (defn write-out-config
   "Write the scanner configuration to a file, and return the path."
-  [root-path offsets sensitivities]
-  (let [config-file-path (str root-path "acceptance.cfg")]
+  [root-path filename offsets sensitivities]
+  (let [config-file-path (str root-path filename)]
     (spit config-file-path
           (config->string offsets sensitivities))
     config-file-path))
@@ -289,13 +289,16 @@
               [ds efn "test"]
               [post-ds post-efn "post"]])))))
 
+(defn uuid []
+  (str (java.util.UUID/randomUUID)))
+
 (defn setup-test [root-path target-path]
   (when (has-calibration-scans root-path)
    (let [ ;; Generate a config for this test
          {:keys [offsets sensitivities]} (get-calibration root-path)
-         ;; Should be able to specify the filename for the config
-         ;; Use a UUID for the filename?
-         config-path (write-out-config root-path offsets sensitivities)]
+         config-path (write-out-config target-path
+                                       (uuid)
+                                       offsets sensitivities)]
      (for [test-name (find-test-cases root-path)]
        ;; find-test-cases already validates that a description file
        ;; and PBMP directory both exist
