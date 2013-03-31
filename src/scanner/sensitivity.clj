@@ -77,6 +77,17 @@
       (partial directory->dataset root-path)
       dir-strc)))
 
+(defn get-calibration-filenames []
+  (flatten (map #(vals %)
+                DEFAULT-STRUCTURE)))
+
+(defn has-calibration-scans
+  "Check whether all of the calibration scan directories exist."
+  [root-dir]
+  (every? #(.exists %)
+          (map (partial file root-dir)
+               (get-calibration-filenames))))
+
 (defn validate-root-exists [root-dir]
   (let [root-file (file root-dir)]
     (when (not (.exists root-file))

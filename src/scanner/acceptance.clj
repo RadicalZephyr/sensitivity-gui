@@ -289,8 +289,6 @@
               [ds efn "test"]
               [post-ds post-efn "post"]])))))
 
-(declare has-calibration-scans)
-
 (defn setup-test [root-path target-path]
   (when (has-calibration-scans root-path)
    (let [ ;; Generate a config for this test
