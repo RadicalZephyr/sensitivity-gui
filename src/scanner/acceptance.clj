@@ -52,7 +52,18 @@
       getCanonicalFile
       getName))
 
-(defn find-test-cases
+(defn data-file->test-name
+  "Expects a java.io.File as file"
+  [file]
+  (let [fstr (.. file
+                 getCanonicalFile
+                 getName)]
+    (.substring fstr 0 (- (.length fstr) 4))))
+
+(defn is-csv? [file]
+  (.endsWith (.getPath file) ".csv"))
+
+(defn find-raw-test-cases
   "Returns a set of strings representing all the test-cases found.
   Use test-name->dataset to get back the actual data from the test"
   [root-path]
@@ -64,6 +75,18 @@
                               (list-files root-path)))]
     (clojure.set/intersection dir-test-cases
                               file-test-cases)))
+
+(defn find-test-cases
+  "Returns a set of strings representing all of the processed
+  test-cases that were found.  Processed means a description file, and a data .csv file with the same names."
+  [root-path]
+  (let [{description-files false
+         data-files        true}
+        (group-by is-csv?
+                  (list-files root-path))]
+    (clojure.set/intersection
+     (set (map file->test-name description-files))
+     (set (map data-file->test-name data-files)))))
 
 (defn test-name->dataset
   "Turn a test name into the corresponding dataset."
@@ -311,8 +334,8 @@
          config-path (write-out-config target-path
                                        (uuid)
                                        offsets sensitivities)]
-     (for [test-name (find-test-cases root-path)]
-       ;; find-test-cases already validates that a description file
+     (for [test-name (find-raw-test-cases root-path)]
+       ;; find-raw-test-cases already validates that a description file
        ;; and PBMP directory both exist
        (let [full-path (str root-path test-name)
              description (read-test-description full-path)
