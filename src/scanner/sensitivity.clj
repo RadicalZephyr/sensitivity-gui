@@ -61,7 +61,10 @@
   "Turn a directory into a dataset.  For the arity-2 version, root-dir
   should have a trailing slash."
   ([directory]
-     (dataset [:timestamp :gyro-x :gyro-y :gyro-z :acc-x :acc-y :acc-z]
+     (dataset [:timestamp
+               :gyro-x :gyro-y :gyro-z
+               :acc-x :acc-y :acc-z
+               :mag-x :mag-y :mag-z]
               (read-data-from-directory directory)))
   ([root-dir dir-name]
      (directory->dataset (str root-dir dir-name))))
