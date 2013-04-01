@@ -318,7 +318,7 @@
              description (read-test-description full-path)
              dataset (test-name->dataset full-path)]
          ;; Write dataset as csv
-         (save-dataset dataset
+         (save-dataset (normalize-dataset dataset)
                        (str target-path test-name ".csv"))
          ;; Write description with config-file added
          (spit (str target-path test-name)
