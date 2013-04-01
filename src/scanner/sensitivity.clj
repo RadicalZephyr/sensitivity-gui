@@ -84,20 +84,12 @@
   (flatten (map #(vals %)
                 DEFAULT-STRUCTURE)))
 
-(defn has-calibration-scans
+(defn has-calibration-scans?
   "Check whether all of the calibration scan directories exist."
   [root-dir]
   (every? #(.exists %)
           (map (partial file root-dir)
                (get-calibration-filenames))))
-
-(defn validate-root-exists [root-dir]
-  (let [root-file (file root-dir)]
-    (when (not (.exists root-file))
-      (binding [*out* *err*]
-        (prn "Error: " root-file " does not exist."))
-      (System/exit 1))
-    (str (.getCanonicalPath root-file) "/")))
 
 (defn offset->string [offsets]
   (join " " (sel (dataset-mean offsets) :rows 0)))
@@ -119,15 +111,24 @@
                                      2
                                      sensitivities))])))
 
+(defn root-exists? [root-path]
+  (.exists (file root-path)))
+
+(defn canonicalize-path [root-dir]
+  (str (.getCanonicalPath
+        (file root-dir)) "/"))
+
 (defn get-calibration
   "From the root-dir, calculate the offsets and sensitivities."
-  [root-dir]
-  (let [root-path (validate-root-exists root-dir)
-        datasets (root-directory->datasets root-path)
-        means    (iterate-structure dataset-mean
-                                    datasets)]
-    {:offsets (get-offsets means)
-     :sensitivities (get-sensitivities means)}))
+  [root-path]
+  (if (and (root-exists?           root-path)
+           (has-calibration-scans? root-path))
+    (let [datasets (root-directory->datasets root-path)
+          means    (iterate-structure dataset-mean
+                                      datasets)]
+      {:offsets (get-offsets means)
+       :sensitivities (get-sensitivities means)})
+    nil))
 
 (defn -main
   "Takes a single argument, a folder that has the subfolders Xnegative,
@@ -136,6 +137,9 @@
   sequentially (i.e. the output of a scan).
   Will print out the offsets and sensitivities of the scanner."
   [root-dir & args]
-
-  (let [{:keys [offsets sensitivities]} (get-calibration root-dir)]
-    (println (config->string offsets sensitivities))))
+  (let [root-path (canonicalize-path root-dir)
+        {:keys [offsets sensitivities]
+         :as config} (get-calibration root-path)]
+    (when config
+      (println
+       (config->string offsets sensitivities)))))

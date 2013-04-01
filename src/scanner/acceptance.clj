@@ -11,7 +11,7 @@
                            save-dataset]]
         [scanner.sensitivity :only [config->string
                                     validate-root-exists
-                                    has-calibration-scans
+                                    has-calibration-scans?
                                     get-calibration
                                     directory->dataset]]
         [clojure.java.io :only [file]]
@@ -327,7 +327,7 @@
              (.mkdir f)))))
 
 (defn setup-test [root-path target-path]
-  (when (and (has-calibration-scans root-path)
+  (when (and (has-calibration-scans? root-path)
              (dir-exists target-path))
    (let [ ;; Generate a config for this test
          {:keys [offsets sensitivities]} (get-calibration root-path)
