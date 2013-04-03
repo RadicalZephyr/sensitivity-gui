@@ -151,4 +151,6 @@
     (if-let [{:keys [offsets sensitivities]} (get-calibration root-path)]
       (println
        (config->string offsets sensitivities))
-      (println "No sensitivity scans were found."))))
+      (println "No sensitivity scans were found."
+               "Directory names should be:\n"
+               (join ", " (get-calibration-filenames))))))
