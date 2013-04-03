@@ -118,6 +118,16 @@
   (str (.getCanonicalPath
         (file root-dir)) "/"))
 
+(defn normalize-dataset
+  "Rebase the timestamps in this dataset to start at 0."
+  [ds]
+  (let [base-time (sel ds :rows 0 :cols :timestamp)]
+    (conj-cols
+     ($map (fn [timestamp]
+                {:timestamp (- timestamp base-time)})
+              :timestamp ds)
+     (sel ds :except-cols :timestamp))))
+
 (defn get-calibration
   "From the root-dir, calculate the offsets and sensitivities."
   [root-path]

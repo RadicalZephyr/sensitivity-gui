@@ -10,9 +10,9 @@
                            list-directories
                            save-dataset]]
         [scanner.sensitivity :only [config->string
-                                    validate-root-exists
                                     has-calibration-scans?
                                     get-calibration
+                                    normalize-dataset
                                     directory->dataset]]
         [clojure.java.io :only [file]]
         [clojure.string :only [join
@@ -152,16 +152,6 @@
                                 (java.io.File/separator)))]
     (nth path-components
          (- (count path-components) 2))))
-
-(defn normalize-dataset
-  "Rebase the timestamps in this dataset to start at 0."
-  [ds]
-  (let [base-time (ic/sel ds :rows 0 :cols :timestamp)]
-    (ic/conj-cols
-     (ic/$map (fn [timestamp]
-                {:timestamp (- timestamp base-time)})
-              :timestamp ds)
-     (ic/sel ds :except-cols :timestamp))))
 
 (defn mean [coll]
   (let [len (count coll)]

@@ -1,7 +1,8 @@
 (ns scanner.gui
   (:gen-class)
   (use [scanner.io :only [save-dataset]]
-       [scanner.sensitivity :only [directory->dataset]]
+       [scanner.sensitivity :only [normalize-dataset
+                                   directory->dataset]]
        seesaw.core
        [seesaw.chooser :only [choose-file]]))
 
@@ -38,8 +39,10 @@
                         :editable? false
                         :multi-line? true
                         :text (with-out-str
-                                (save-dataset (directory->dataset dir)
-                                              "-" :delim ","))))])))
+                                (save-dataset
+                                 (normalize-dataset
+                                  (directory->dataset dir))
+                                 "-" :delim ","))))])))
 
 (defn open-sensitivity [root]
   (let [dir (choose-absolute-dir-path root)]
