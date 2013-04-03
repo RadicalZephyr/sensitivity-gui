@@ -1,37 +1,36 @@
 (ns scanner.gui
-  (:gen-class)
-  (use [scanner.io :only [save-dataset]]
+  (:gen-class) ;; Necessary so that this can be used as the "main" for
+               ;; an uberjar.
+  (use seesaw.core
+       [seesaw.chooser :only [choose-file]]
+       [scanner.io :only [save-dataset]]
        [scanner.sensitivity :only [normalize-dataset
-                                   directory->dataset]]
-       seesaw.core
-       [seesaw.chooser :only [choose-file]]))
+                                   directory->dataset]]))
 
-(defn choose-absolute-dir-path [root]
+(defn- choose-absolute-dir-path
+  "Open a dialog to choose a directory.  Returns the absolute path
+  with a slash appended."
+  [root]
   (choose-file root
                :selection-mode :dirs-only
                :success-fn (fn [fc file]
                              (str (.getAbsolutePath file) "/"))))
 
-(defn dir-select []
-  (horizontal-panel :items
-                    [(text :text "Select a file"
-                           :editable? false
-                           :id :root-dir)
-                     ]))
-
-(defn main-widget []
+(defn- main-widget []
   (border-panel :id :main-bp
                 :hgap 10 :vgap 10
                 :center (vertical-panel  :id :main-display
                                          :maximum-size [640 :by 480]
                                          :items [])))
 
-(defn reset-main [root content]
+(defn- reset-main
+  "Reset the content of the main text area."
+  [root content]
   (invoke-later
    (config! (select root [:#main-display])
             :items content)))
 
-(defn open-scan [root]
+(defn- open-scan [root]
   (let [dir (choose-absolute-dir-path root)]
     (reset-main root
                 [(scrollable
@@ -44,7 +43,7 @@
                                   (directory->dataset dir))
                                  "-" :delim ","))))])))
 
-(defn open-sensitivity [root]
+(defn- open-sensitivity [root]
   (let [dir (choose-absolute-dir-path root)]
     (reset-main root
                 [(scrollable
@@ -54,17 +53,20 @@
                         :text (with-out-str
                                 (scanner.sensitivity/-main dir))))])))
 
-(defn save-file [root]
+(defn- save-file [root]
   (let [file (choose-file root
-               :type :save)]
+                          :type :save)]
     (invoke-later
      (spit file
            (config (select root [:#text-field])
                    :text)))))
 
-(defn call-with-to-root [fun]
+(defn- call-with-to-root
+  "Create a wrapper for f that calls to-root on an event and then
+  passes the root to f."
+  [f]
   (fn [e]
-    (fun (to-root e))))
+    (f (to-root e))))
 
 (defn setup-menu []
   (let [open-scan-action (action :name "Open scan ..."
@@ -86,7 +88,7 @@
                                          exit-action])])))
 
 (defn -main
-  "Hello world, seesaw style!"
+  "A gui interface to the capabilities of this utility."
   [& args]
   (native!)
   (invoke-later
@@ -96,14 +98,3 @@
               :content (main-widget)
               :size [640 :by 480])
        show!)))
-
-(defn start-dev []
-  (use 'clojure.repl
-       'clojure.pprint
-       'seesaw.dev)
-  (native!))
-
-(def f)
-
-(defn display [content]
-  (config! f :content content))
