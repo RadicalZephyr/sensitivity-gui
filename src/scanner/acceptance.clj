@@ -112,14 +112,12 @@
   "Wrapper on incanter read-dataset to allow reading a dataset from a
   string."
   [headers string]
-  (with-redefs [ic/get-input-reader
-                (fn [& args] (apply clojure.java.io/reader args))]
-    (ic/col-names
-     (ioc/read-dataset
-      (java.io.BufferedReader.
-       (java.io.StringReader. string))
-      :delim \space)
-     headers)))
+  (ic/col-names
+   (ioc/read-dataset
+    (java.io.BufferedReader.
+     (java.io.StringReader. string))
+    :delim \space)
+   headers))
 
 (defn run-test-case
   "Run a test with the given executable, config and dataset."
