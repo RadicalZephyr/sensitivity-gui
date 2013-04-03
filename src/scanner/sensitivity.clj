@@ -147,9 +147,8 @@
   sequentially (i.e. the output of a scan).
   Will print out the offsets and sensitivities of the scanner."
   [root-dir & args]
-  (let [root-path (canonicalize-path root-dir)
-        {:keys [offsets sensitivities]
-         :as config} (get-calibration root-path)]
-    (when config
+  (let [root-path (canonicalize-path root-dir)]
+    (if-let [{:keys [offsets sensitivities]} (get-calibration root-path)]
       (println
-       (config->string offsets sensitivities)))))
+       (config->string offsets sensitivities))
+      (println "No sensitivity scans were found."))))
