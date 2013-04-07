@@ -336,6 +336,34 @@
                (assoc description
                  :config-file config-path)))))))
 
+(declare run-test)
+
+(defn prep-path [^String string]
+  (if (not (.endsWith string "/"))
+    (str string "/")
+    string))
+
+(defn docstring []
+  (println "Need at least two arguments:"
+           "the task, and the target directory."))
+
+(defn -main
+  "Run an acceptance test.  Two modes: setup and test.  The first
+  argument should be either :setup or :test."
+  [& args]
+  (if (> (count args) 1)
+    (let [[task directory target] args]
+     (cond (and (= task :setup)
+                (string? directory)
+                (string? target))
+           (setup-test (prep-path directory)
+                       (prep-path target))
+
+           (= task :test) (run-test (prep-path directory))
+
+           :else (prn task directory target)))
+    (docstring)))
+
 ;; (defn -main
 ;;   "Run the acceptance test.  Takes a single argument of a folder.
 ;;   This folder should contain the requisite scans for doing a
