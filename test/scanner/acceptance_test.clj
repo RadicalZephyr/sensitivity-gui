@@ -1,6 +1,7 @@
 (ns scanner.acceptance-test
   (:require [clojure.java.io :as io]
-            [incanter.core :as ic])
+            [incanter.core :as ic]
+            [incanter.io :as ioc])
   (:use midje.sweet
         scanner.acceptance))
 
@@ -20,6 +21,14 @@ component"
       (data-file->test-name (io/file "abc")) => "abc"
       (data-file->test-name (io/file "test/abc.csv")) => "abc")
 
+(fact "test-name->dataset get's a different path depending on the task"
+      ;; For some reason I can't check for ::setup.  I think it's
+      ;; because the function I want to mock is in a different package
+      ;; and I'm using it.
+      (test-name->dataset ...test... :scanner.acceptance/test) =>
+      ...test-result...
+      (provided
+       (ioc/read-dataset anything :header true) => ...test-result...))
 
 (fact "Windows executables have an .exe extension, linux ones don't"
       (get-exe-for-version "v0.15.1") => (io/file "v0.15.1/acceptance")
@@ -41,6 +50,15 @@ component"
        (io/file "v0.15.1/acceptance")) => "v0.15.1"
       (get-version-from-exe
        (io/file "some/extra/stuff/v0.1.0/nothing")) => "v0.1.0")
+
+(fact "process-test-name returns the test-name description and
+dataset"
+      (process-test-name ...root... ...test...) => [...test...
+                                                    ...description...
+                                                    ...ds...]
+      (provided
+       (read-test-description anything) => ...description...
+       (test-name->dataset anything :scanner.acceptance/test) => ...ds...))
 
 (fact "Run test case should return a dataset or nil"
       (run-test-case (io/file "exe") ...cfg... ...dataset...)
