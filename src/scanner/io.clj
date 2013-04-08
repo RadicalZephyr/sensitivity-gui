@@ -24,7 +24,7 @@
   "Create a channel from a filename."
   (.getChannel (RandomAccessFile. filename "r")))
 
-(defn- channel->bb
+(defn- ^ByteBuffer channel->bb
   "Memory map a BUFFER-SIZE amount of memory at offset in the given
   channel."
   [channel offset size]
@@ -38,14 +38,14 @@
    (repeatedly n f)))
 
 (defn- read-sensor-entry-v1
-  [byte-buffer]
+  [^ByteBuffer byte-buffer]
   (let [timestamp (.getInt byte-buffer)
         accel (do-repeatedly 3 #(.getFloat byte-buffer))
         gyro  (do-repeatedly 3 #(.getFloat byte-buffer))]
     (concat [timestamp] gyro accel)))
 
 (defn- read-sensor-entry-v2
-  [byte-buffer]
+  [^ByteBuffer byte-buffer]
   (let [timestamp (.getInt byte-buffer)
         accel (do-repeatedly 3 #(.getShort byte-buffer))
         gyro  (do-repeatedly 3 #(.getShort byte-buffer))]
@@ -53,7 +53,7 @@
 
 (defn- read-sensor-entry-v3
   "Read a single sample of sensor data."
-  [byte-buffer]
+  [^ByteBuffer byte-buffer]
   (let [timestamp (.getInt byte-buffer)
         accel (do-repeatedly 3 #(.getShort byte-buffer))
         gyro  (do-repeatedly 3 #(.getShort byte-buffer))
@@ -64,7 +64,7 @@
 
 (defn- read-data
   "Read all of the sensor data available from a byte-buffer."
-  [byte-buffer read-fn]
+  [read-fn ^ByteBuffer byte-buffer]
   (let [magic-header (.getInt byte-buffer)
         hdrs (do-repeatedly 4  #(.getInt byte-buffer))
         sensor-length (.get byte-buffer)]
