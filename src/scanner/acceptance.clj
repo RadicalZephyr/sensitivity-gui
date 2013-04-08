@@ -175,24 +175,6 @@
          #(test-name->dataset % ::test))
    (str root-path test-case)))
 
-(defn absolute-error
-  "Get the absolute error -> expected - actual"
-  [expected actual]
-  ;; This if statement is the whole reason this is a function; to
-  ;; avoid random NPE's when I upstream functions return null
-  (if (and (number? expected)
-           (number? actual))
-    (ic/abs (- expected actual))
-    (throw (str "Expected: " expected "actual:" actual))))
-
-(defn relative-error
-  "Get the relative error -> 100 * (absolute-error / expected)"
-  [expected actual]
-  (let [abs-err (absolute-error expected actual)]
-    (if (= 0 expected) ;; Avoid dividing by zero
-      abs-err
-      (* 100 (/ abs-err expected)))))
-
 (defn split-dataset
   "Split the dataset into three sections: before movement, during
   movement and after movement."
