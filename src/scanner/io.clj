@@ -15,6 +15,11 @@
   found."
   [0x1ff800 0x1ffc00])
 
+(declare read-sensor-entry-v3)
+
+(def VERSIONS
+  {:current read-sensor-entry-v3})
+
 (defn- open-channel [filename]
   "Create a channel from a filename."
   (.getChannel (RandomAccessFile. filename "r")))
@@ -32,7 +37,7 @@
   (doall
    (repeatedly n f)))
 
-(defn- read-sensor-entry
+(defn- read-sensor-entry-v3
   "Read a single sample of sensor data."
   [byte-buffer]
   (let [timestamp (.getInt byte-buffer)
@@ -45,12 +50,12 @@
 
 (defn- read-data
   "Read all of the sensor data available from a byte-buffer."
-  [byte-buffer]
+  [byte-buffer read-fn]
   (let [magic-header (.getInt byte-buffer)
         hdrs (do-repeatedly 4  #(.getInt byte-buffer))
         sensor-length (.get byte-buffer)]
     (when (= magic-header FW-MAGIC-HEADER)
-      (do-repeatedly sensor-length #(read-sensor-entry byte-buffer)))))
+      (do-repeatedly sensor-length #(read-fn byte-buffer)))))
 
 (defn list-files
   "Get a sorted sequence of all the files in a directory."
@@ -78,20 +83,25 @@
   "Read all of the sensor entries from a file.  Verifies that both
   offsets contain the same data.  Returns a seq of sample-seqs
   [timestamp accel_x accel_y accel_z gyro_x gyro_y gyro_z]."
-  [file]
+  [read-fn file]
   (with-open [chn (open-channel file)]
-    (let [data (map #(read-data (channel->bb chn % BUFFER-SIZE))
+    (let [data (map #(read-data read-fn (channel->bb chn % BUFFER-SIZE))
                     OFFSETS)]
       (when (= (first data) (second data))
         (first data)))))
+
+(defn reader-name-for [version]
+  (resolve (symbol (str "read-sensor-entry-" (name version)))))
 
 (defn read-data-from-directory
   "Read all of the data for a scan from a directory containing all of
   the PBMP files.  Returns a larger seq of the same form as
   read-data-from-file."
-  [directory]
-  (mapcat read-data-from-file
-          (list-files directory)))
+  [directory & {:keys [version] :or {version :current}}]
+  (let [reader-fn (or (VERSIONS version)
+                      (reader-name-for version))]
+    (mapcat (partial read-data-from-file reader-fn)
+            (list-files directory))))
 
 ;; Lifted and modified from incanter.core (incanter.io)
 (defn save-dataset
