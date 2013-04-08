@@ -37,6 +37,20 @@
   (doall
    (repeatedly n f)))
 
+(defn- read-sensor-entry-v1
+  [byte-buffer]
+  (let [timestamp (.getInt byte-buffer)
+        accel (do-repeatedly 3 #(.getFloat byte-buffer))
+        gyro  (do-repeatedly 3 #(.getFloat byte-buffer))]
+    (concat [timestamp] gyro accel)))
+
+(defn- read-sensor-entry-v2
+  [byte-buffer]
+  (let [timestamp (.getInt byte-buffer)
+        accel (do-repeatedly 3 #(.getShort byte-buffer))
+        gyro  (do-repeatedly 3 #(.getShort byte-buffer))]
+    (concat [timestamp] gyro accel)))
+
 (defn- read-sensor-entry-v3
   "Read a single sample of sensor data."
   [byte-buffer]
