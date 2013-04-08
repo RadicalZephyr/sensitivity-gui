@@ -55,10 +55,12 @@
 (defn data-file->test-name
   "Expects a java.io.File as file"
   [file]
-  (let [fstr (.. file
-                 getCanonicalFile
-                 getName)]
-    (.substring fstr 0 (- (.length fstr) 4))))
+  (first
+   (split
+    (.. file
+        getCanonicalFile
+        getName)
+    #"\.csv")))
 
 (defn is-csv? [file]
   (.endsWith (.getPath file) ".csv"))

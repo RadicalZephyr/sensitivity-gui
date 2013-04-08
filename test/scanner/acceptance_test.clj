@@ -15,6 +15,12 @@ component"
       (file->test-name (io/file "abc")) => "abc"
       (file->test-name (io/file "test/abc")) => "abc")
 
+(fact "Transforming a data-file to a test-name means getting the last path component and stripping off the 'csv' suffix"
+      (data-file->test-name (io/file "abc.csv")) => "abc"
+      (data-file->test-name (io/file "abc")) => "abc"
+      (data-file->test-name (io/file "test/abc.csv")) => "abc")
+
+
 (fact "Windows executables have an .exe extension, linux ones don't"
       (get-exe-for-version "v0.15.1") => (io/file "v0.15.1/acceptance")
 
@@ -33,8 +39,8 @@ component"
 component"
       (get-version-from-exe
        (io/file "v0.15.1/acceptance")) => "v0.15.1"
-       (get-version-from-exe
-        (io/file "some/extra/stuff/v0.1.0/nothing")) => "v0.1.0")
+      (get-version-from-exe
+       (io/file "some/extra/stuff/v0.1.0/nothing")) => "v0.1.0")
 
 (fact "Run test case should return a dataset or nil"
       (run-test-case (io/file "exe") ...cfg... ...dataset...)
