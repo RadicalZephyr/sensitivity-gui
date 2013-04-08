@@ -166,15 +166,14 @@
 (defn report-test-case-results [results]
   (clojure.pprint/pprint results))
 
-(defn process-test-names
+(defn process-test-name
   "Return a seq of seq's containing: [test-name-path test-description
   test-dataset]."
-  [root-path test-cases]
-  (map (comp (juxt identity
-                   read-test-description
-                   test-name->dataset)
-             (partial str root-path))
-       test-cases))
+  [root-path test-case]
+  ((juxt (fn [_] test-case)
+         read-test-description
+         #(test-name->dataset % ::test))
+   (str root-path test-case)))
 
 (defn absolute-error
   "Get the absolute error -> expected - actual"
@@ -342,9 +341,19 @@
                (assoc description
                  :config-file config-path)))))))
 
-(declare run-test)
+(defn run-test [root-path]
+  (for [[test-name description in-ds]
+        (map (partial process-test-name root-path)
+             (find-test-cases root-path))
+        [exe version] (map (juxt identity get-version-from-exe)
+                           (find-test-executables root-path))]
+    (let [out-ds (run-test-case
+                  exe
+                  (:config-file description)
+                  in-ds)]
+      (process-test test-name version out-ds description))))
 
-(defn prep-path [^String string]
+(defn prep-path [string]
   (if (not (.endsWith string "/"))
     (str string "/")
     string))
@@ -367,7 +376,8 @@
 
            (= task :test) (run-test (prep-path directory))
 
-           :else (prn task directory target)))
+           :else (prn task directory target))
+     (shutdown-agents))
     (docstring)))
 
 ;; (defn -main
