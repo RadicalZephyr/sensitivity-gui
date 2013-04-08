@@ -58,16 +58,13 @@
   (iterate-structure dataset-mean datasets))
 
 (defn directory->dataset
-  "Turn a directory into a dataset.  For the arity-2 version, root-dir
-  should have a trailing slash."
-  ([directory]
+  "Turn a directory into a dataset."
+  ([directory & {:keys [version]}]
      (dataset [:timestamp
                :gyro-x :gyro-y :gyro-z
                :acc-x :acc-y :acc-z
                :mag-x :mag-y :mag-z]
-              (read-data-from-directory directory)))
-  ([root-dir dir-name]
-     (directory->dataset (str root-dir dir-name))))
+              (read-data-from-directory directory :version version))))
 
 (defn- root-directory->datasets
   "Create a structure of datasets located at root-path.  The
@@ -77,7 +74,7 @@
      (root-directory->datasets root-path DEFAULT-STRUCTURE))
   ([root-path dir-strc]
      (iterate-structure
-      (partial directory->dataset root-path)
+      #(directory->dataset (str root-path %))
       dir-strc)))
 
 (defn get-calibration-filenames []

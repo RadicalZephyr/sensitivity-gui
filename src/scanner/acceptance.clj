@@ -93,9 +93,9 @@
 
 (defn test-name->dataset
   "Turn a test name into the corresponding dataset."
-  [test-name task]
+  [test-name task & {:keys [version]}]
   (cond (= task ::setup)
-        (directory->dataset (str test-name ".d"))
+        (directory->dataset (str test-name ".d") :version version)
 
         (= task ::test)
         (ioc/read-dataset (str test-name ".csv")
@@ -316,7 +316,10 @@
        ;; and PBMP directory both exist
        (let [full-path (str root-path test-name)
              description (read-test-description full-path)
-             dataset (test-name->dataset full-path ::setup)]
+             dataset (test-name->dataset full-path
+                                         ::setup
+                                         :version (description
+                                                   :binary-version))]
          ;; Write dataset as csv
          (save-dataset (normalize-dataset dataset)
                        (str target-path test-name ".csv"))
