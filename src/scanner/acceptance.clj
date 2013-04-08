@@ -1,23 +1,17 @@
 (ns scanner.acceptance
-  (:require clojure.set
-            clojure.pprint
-            [clojure.walk :as cw]
-            [incanter
-             [core :as ic]
-             [io :as ioc]
-             [charts :as ich]])
-  (:use [scanner.io :only [list-files
-                           list-directories
-                           save-dataset]]
-        [scanner.sensitivity :only [config->string
-                                    has-calibration-scans?
-                                    get-calibration
-                                    normalize-dataset
-                                    directory->dataset]]
-        [clojure.java.io :only [file]]
-        [clojure.string :only [join
-                               split]]
-        [clojure.java.shell :only [sh]]))
+  (:require [incanter.core :as ic]
+            [incanter.io :as ioc]
+            [clojure.java.io :refer [file]]
+            [clojure.java.shell :refer [sh]]
+            [clojure.string :refer [split]]
+            [scanner.io :refer [list-directories
+                                list-files
+                                save-dataset]]
+            [scanner.sensitivity :refer [config->string
+                                         directory->dataset
+                                         get-calibration
+                                         has-calibration-scans?
+                                         normalize-dataset]]))
 
 (def ^:const column-mapping
   {:x-rotation :gyro-x

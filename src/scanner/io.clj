@@ -1,7 +1,6 @@
 (ns scanner.io
-  (:import java.io.RandomAccessFile
-           java.nio.ByteBuffer
-           java.nio.ByteOrder))
+  (:import (java.io RandomAccessFile)
+           (java.nio ByteBuffer ByteOrder)))
 
 (def ^:const BUFFER-SIZE 1024)
 

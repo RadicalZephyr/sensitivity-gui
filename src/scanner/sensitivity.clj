@@ -1,8 +1,18 @@
 (ns scanner.sensitivity
-  (:use incanter.core
-        [clojure.string  :only [join]]
-        [clojure.java.io :only [file]]
-        [scanner.io  :only [read-data-from-directory]]))
+  (:require [clojure.java.io :refer [file]]
+            [clojure.set :refer [join]]
+            [incanter.core :refer [$map
+                                   $rollup
+                                   conj-cols
+                                   dataset
+                                   div
+                                   matrix
+                                   minus
+                                   plus
+                                   sel
+                                   to-list
+                                   to-matrix]]
+            [scanner.io :refer [read-data-from-directory]]))
 
 (def ^:const DEFAULT-STRUCTURE
   [{:neg "Xnegative.d" :pos "Xpositive.d"}
