@@ -78,7 +78,8 @@
 
 (defn find-test-cases
   "Returns a set of strings representing all of the processed
-  test-cases that were found.  Processed means a description file, and a data .csv file with the same names."
+  test-cases that were found.  Processed means a description file, and
+  a data .csv file with the same names."
   [root-path]
   (let [{description-files false
          data-files        true}
@@ -90,8 +91,13 @@
 
 (defn test-name->dataset
   "Turn a test name into the corresponding dataset."
-  [test-name]
-  (directory->dataset (str test-name ".d")))
+  [test-name task]
+  (cond (= task ::setup)
+        (directory->dataset (str test-name ".d"))
+
+        (= task ::test)
+        (ioc/read-dataset (str test-name ".csv")
+                          :header true)))
 
 (defn get-exe-for-version
   "OS aware method of getting the correct binary given a binary root
@@ -327,7 +333,7 @@
        ;; and PBMP directory both exist
        (let [full-path (str root-path test-name)
              description (read-test-description full-path)
-             dataset (test-name->dataset full-path)]
+             dataset (test-name->dataset full-path ::setup)]
          ;; Write dataset as csv
          (save-dataset (normalize-dataset dataset)
                        (str target-path test-name ".csv"))
