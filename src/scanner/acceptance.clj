@@ -350,13 +350,13 @@
   [& args]
   (if (> (count args) 1)
     (let [[task directory target] args]
-     (cond (and (= task :setup)
+     (cond (and (= task "setup")
                 (string? directory)
                 (string? target))
            (setup-test (prep-path directory)
                        (prep-path target))
 
-           (= task :test) (run-test (prep-path directory))
+           (= task "test") (run-test (prep-path directory))
 
            :else (prn task directory target))
      (shutdown-agents))
