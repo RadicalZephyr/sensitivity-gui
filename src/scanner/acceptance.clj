@@ -30,6 +30,27 @@
           (config->string offsets sensitivities))
     config-file-path))
 
+(defn to-seconds [timestamp]
+  (double (/ timestamp 1000)))
+
+(defn describe-static-test
+  "A utilitly function to produce a description file for a static
+  test.  This file will explicitly have all zero's for each axis, and
+  will be split into thirds."
+  [dir-path]
+  (let [ds (normalize-dataset
+            (directory->dataset dir-path))
+        third (/ (ic/nrow ds) 3)
+        sixth (* 2 third)
+        pts (ic/sel ds :cols :timestamp :rows [third sixth])
+        description (reduce #(assoc %1 %2 0)
+                            {:start-time (to-seconds (first pts))
+                             :duration (to-seconds
+                                        (apply - (reverse pts)))}
+                            (keys column-mapping))]
+    (spit (first (split dir-path #"\.d"))
+          description)))
+
 (defn dir->test-name
   "Expects a java.io.File as directory"
   [directory]
