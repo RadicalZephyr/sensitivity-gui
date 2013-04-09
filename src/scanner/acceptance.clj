@@ -1,6 +1,7 @@
 (ns scanner.acceptance
   (:require [incanter.core :as ic]
             [incanter.io :as ioc]
+            [clojure.pprint]
             [clojure.java.io :refer [file]]
             [clojure.java.shell :refer [sh]]
             [clojure.string :refer [split]]
