@@ -88,7 +88,7 @@
 
 (defn test-name->dataset
   "Turn a test name into the corresponding dataset."
-  [test-name task & {:keys [version]}]
+  [test-name task & {:keys [version] :or {version :current}}]
   (cond (= task ::setup)
         (directory->dataset (str test-name ".d") :version version)
 

@@ -69,7 +69,7 @@
 
 (defn directory->dataset
   "Turn a directory into a dataset."
-  ([directory & {:keys [version]}]
+  ([directory & {:keys [version] :or {version :current}}]
      (dataset [:timestamp
                :gyro-x :gyro-y :gyro-z
                :acc-x :acc-y :acc-z
