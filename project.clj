@@ -4,8 +4,7 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :main scanner.gui
-  :launch4j-config-file "resources/config.xml"
-  :plugins [[lein-launch4j "0.1.1"]
+  :plugins [[lein-launch4j "0.2.0-SNAPSHOT"]
             [lein-midje "3.0.0"]]
   :profiles {:dev {:dependencies [[midje "1.5.1"]]}}
   :dependencies [[org.clojure/clojure "1.4.0"]
